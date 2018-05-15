@@ -19,12 +19,16 @@ namespace MulticriteriaOptimization
         int countConstr;
         int countVar;
         MultiCriteriaProblem prob;
+        double[] solutionsF;
+        DataGridView criteriaTable;
+        DataGridView coeffTable;
+        DataGridView constTable;
         string wrongFormatMessage = "Неверный формат данных в файле! Проверьте файл на наличие букв и лишних пробелов.";
 
         public MainForm()
         {
             InitializeComponent();
-            textBoxCountConstraint.Text = "5S";
+            textBoxCountConstraint.Text = "5";
             textBoxCountCriteria.Text = "2";
             textBoxCountVar.Text = "4";
         }
@@ -38,10 +42,11 @@ namespace MulticriteriaOptimization
         {
             panel1.Controls.Clear();
             prob = null;
-            int countCrit = Convert.ToInt32(textBoxCountCriteria.Text);
-            int countVar = Convert.ToInt32(textBoxCountVar.Text);
-            int countConstr = Convert.ToInt32(textBoxCountConstraint.Text);
+            countCrit = Convert.ToInt32(textBoxCountCriteria.Text);
+            countVar = Convert.ToInt32(textBoxCountVar.Text);
+            countConstr = Convert.ToInt32(textBoxCountConstraint.Text);
             createUIProblem(countCrit, countVar, countConstr);
+            buttonComputeF.Visible = true;
         }
 
         private void createUIProblem(int countCrit, int countVar, int countConstr)
@@ -52,7 +57,8 @@ namespace MulticriteriaOptimization
             criteriaLabel.AutoSize = true;
             panel1.Controls.Add(criteriaLabel);
 
-            DataGridView criteriaTable = new DataGridView();
+            criteriaTable = new DataGridView();
+            criteriaTable.AllowUserToAddRows = false;
             criteriaTable.Width = 60 * countVar;
             criteriaTable.RowHeadersVisible = false;
             criteriaTable.Location = new Point(criteriaLabel.Location.X + 60, groupBox1.Location.Y + 5);
@@ -114,7 +120,8 @@ namespace MulticriteriaOptimization
             coeffLabel.AutoSize = true;
             panel1.Controls.Add(coeffLabel);
 
-            DataGridView coeffTable = new DataGridView();
+            coeffTable = new DataGridView();
+            coeffTable.AllowUserToAddRows = false;
             coeffTable.Width = 60 * countVar;
             coeffTable.RowHeadersVisible = false;
             coeffTable.Location = new Point(coeffLabel.Location.X + 60, coeffLabel.Location.Y + 20);
@@ -183,7 +190,8 @@ namespace MulticriteriaOptimization
             constLabel.Text = "Свободные члены";
             constLabel.AutoSize = true;
             panel1.Controls.Add(constLabel);
-            DataGridView constTable = new DataGridView();
+            constTable = new DataGridView();
+            constTable.AllowUserToAddRows = false;
             constTable.Width = 60;
             constTable.RowHeadersVisible = false;
             constTable.Location = new Point(constLabel.Location.X, coeffTable.Location.Y);
@@ -355,28 +363,84 @@ namespace MulticriteriaOptimization
                         xlApp.Quit();
                         Marshal.ReleaseComObject(xlApp);
                     }
-                    else
-                    {
-                        
-                    }
+                buttonComputeF.Visible = true;
                 //}
                 //catch (Exception ex)
                 //{
-                    //MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
                 //}
             }
         }
 
         private void buttonCompute_Click(object sender, EventArgs e)
         {
+            if(prob == null)
+            {
+                bool[] minimize = new bool[countCrit];
+                double[,] criteriaCoefficients = new double[countCrit, countVar];
+                double[,] constraintCoefficients = new double[countConstr, countVar];
+                double[] constants = new double[countConstr];
+                MathSign[] constraintSigns = new MathSign[countConstr];
+                int[] NotNonNegativeVarInd;
+                List<string> comboboxText = new List<string>();  
+                foreach(Control c in panel1.Controls)
+                {
+                    if(c is ComboBox)
+                        comboboxText.Add(((ComboBox)c).SelectedItem.ToString());
+                }
+                for(int i = 0; i < countCrit; i++)
+                {
+                    minimize[i] = comboboxText[i] == "MIN";
+                }
+                for (int i = countCrit; i < countCrit + countConstr; i++)
+                {
+                    switch(comboboxText[i])
+                    {
+                        case "<=": constraintSigns[i - countCrit] = MathSign.LessThan; break;
+                        case ">=": constraintSigns[i - countCrit] = MathSign.GreaterThan; break;
+                        case "=": constraintSigns[i - countCrit] = MathSign.Equal; break;
+                    }
+                }
+                List<int> tempNotNonNeg = new List<int>(); 
+                for (int i = countCrit + countConstr; i < countCrit + countConstr + countVar; i++)
+                {
+                    if(comboboxText[i] == " ")
+                    {
+                        tempNotNonNeg.Add(i - countCrit - countConstr);
+                    }
+                }
+                NotNonNegativeVarInd = tempNotNonNeg.ToArray();
+                for (int i = 0; i < criteriaTable.RowCount; i++)
+                {
+                    for (int j = 0; j < criteriaTable.ColumnCount; j++)
+                    {
+                        criteriaCoefficients[i,j] = Convert.ToDouble(criteriaTable[j, i].Value);
+                    }
+                }
+                for (int i = 0; i < coeffTable.RowCount; i++)
+                {
+                    for (int j = 0; j < coeffTable.ColumnCount; j++)
+                    {
+                        constraintCoefficients[i, j] = Convert.ToDouble(coeffTable[j, i].Value);
+                    }
+                }
+                for (int i = 0; i < constTable.RowCount; i++)
+                {
+                    constants[i] = Convert.ToDouble(constTable[0, i].Value);
+                }
+                prob = new MultiCriteriaProblem(minimize, criteriaCoefficients, constraintCoefficients, constants, constraintSigns, NotNonNegativeVarInd);
+            }
+            solutionsF = new double[prob.Minimize.Length];
             SimplexMethod sm;
-            double[] solutions = new double[prob.Minimize.Length];
-            for(int i = 0; i < prob.Minimize.Length; i++)
+            labelOptF.Text = "(";
+            for (int i = 0; i < prob.Minimize.Length; i++)
             {
                 sm = new SimplexMethod(prob, i);
-                solutions[i] = sm.Calculate();
+                solutionsF[i] = sm.Calculate();
+                labelOptF.Text += solutionsF[i] + " ";
             }
-            int y = 0;
+            labelOptF.Text += ")";
+            labelOptF.Visible = true;
         }
     }
 }

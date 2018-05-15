@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBoxCountVar = new System.Windows.Forms.TextBox();
@@ -73,6 +74,7 @@
             this.pictureBox1.Size = new System.Drawing.Size(23, 23);
             this.pictureBox1.TabIndex = 8;
             this.pictureBox1.TabStop = false;
+            this.toolTip1.SetToolTip(this.pictureBox1, resources.GetString("pictureBox1.ToolTip"));
             // 
             // textBoxCountVar
             // 
@@ -150,6 +152,7 @@
             this.buttonCompute.TabIndex = 2;
             this.buttonCompute.Text = "Рассчитать";
             this.buttonCompute.UseVisualStyleBackColor = true;
+            this.buttonCompute.Click += new System.EventHandler(this.buttonCompute_Click);
             // 
             // panel1
             // 

@@ -10,7 +10,7 @@ namespace MulticriteriaOptimization
 
     class MultiCriteriaProblem
     {
-        public bool[] Maximize { get; set; }
+        public bool[] Minimize { get; set; }
         public double[,] CriteriaCoefficients { get; set; }
         public double[,] ConstraintCoefficients { get; set; }
         public double[] Constants { get; set; }
@@ -21,9 +21,9 @@ namespace MulticriteriaOptimization
         public int CountConstraint { get; set; }
         public int CountVariables { get; set; }
 
-        public MultiCriteriaProblem(bool[] maximize, double[,] criteriaCoefficients, double[,] constraintCoefficients, double[] constants, MathSign[] constraintSigns, int[] notNonNegativeVariables)
+        public MultiCriteriaProblem(bool[] minimize, double[,] criteriaCoefficients, double[,] constraintCoefficients, double[] constants, MathSign[] constraintSigns, int[] notNonNegativeVariables)
         {
-            Maximize = maximize;
+            Minimize = minimize;
             ConstraintCoefficients = constraintCoefficients;
             CriteriaCoefficients = criteriaCoefficients;
             CountConstraint = ConstraintCoefficients.GetLength(0);

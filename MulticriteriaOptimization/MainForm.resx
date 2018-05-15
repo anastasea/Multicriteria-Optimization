@@ -120,4 +120,23 @@
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="pictureBox1.ToolTip" xml:space="preserve">
+    <value>Правила ввода данных
+Первая строка - число критериев, число ограничений, число переменных
+Далее критерии: вид задачи(1 - min, 0 - max) и коэффициенты 
+Затем задаются ограничения
+Можно задать индексы переменных, на которые не наложено условие неортицательности
+Пример:
+2 3 3
+0 6 5 4
+1 2 2 2
+1 1 1 &lt;= 6
+1 2 0 &lt;= 4
+1 1 3 &lt;= 6
+0 2
+</value>
+  </data>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>47</value>
+  </metadata>
 </root>

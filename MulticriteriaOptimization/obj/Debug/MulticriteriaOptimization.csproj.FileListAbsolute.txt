@@ -3,7 +3,6 @@ C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\bin\D
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\bin\Debug\MulticriteriaOptimization.pdb
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.csprojResolveAssemblyReference.cache
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.MainForm.resources
-C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.InputForm.resources
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.Properties.Resources.resources
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.csproj.GenerateResource.Cache
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.csproj.CoreCompileInputs.cache

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
-using Excel = Microsoft.Office.Interop.Excel;
+using System.Diagnostics;
 
 namespace MulticriteriaOptimization
 {
@@ -31,6 +31,9 @@ namespace MulticriteriaOptimization
             textBoxCountConstraint.Text = "5";
             textBoxCountCriteria.Text = "2";
             textBoxCountVar.Text = "4";
+            textBoxAlpha.Text = "0,1";
+            textBoxEps.Text = "0,1";
+            textBoxStep.Text = "2";
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -47,6 +50,7 @@ namespace MulticriteriaOptimization
             countConstr = Convert.ToInt32(textBoxCountConstraint.Text);
             createUIProblem(countCrit, countVar, countConstr);
             buttonComputeF.Visible = true;
+            labelOptF.Visible = false;
         }
 
         private void createUIProblem(int countCrit, int countVar, int countConstr)
@@ -246,6 +250,7 @@ namespace MulticriteriaOptimization
         {
             prob = null;
             panel1.Controls.Clear();
+            labelOptF.Visible = false;
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".txt";
             dlg.Filter = "Текстовый документ (.txt)|*.txt|Excel-файл (.xlsx)|*.xlsx";
@@ -254,8 +259,8 @@ namespace MulticriteriaOptimization
             {
                 string filename = dlg.FileName;
                 string extension = Path.GetExtension(filename);
-                //try
-                //{
+                try
+                {
                     if (extension == ".txt")
                     {
                         string[] fileLines = File.ReadAllLines(filename);
@@ -331,44 +336,12 @@ namespace MulticriteriaOptimization
                             MessageBox.Show(exc.Message);
                         }
                     }
-                    else if (extension == ".xlsx")
-                    {
-                        Excel.Application xlApp = new Excel.Application();
-                        xlApp.Visible = false;
-                        Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(filename);
-                        Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[1];
-                        Excel.Range xlRange = xlWorksheet.UsedRange;
-
-                        int rowCount = xlRange.Rows.Count;
-                        int colCount = xlRange.Columns.Count;
-
-                        double[,]arr = new double[rowCount, colCount];
-
-                        Array values = (Array)xlRange.Cells.Value;
-
-                        for (int i = 1; i <= rowCount; i++)
-                        {
-                            for (int j = 1; j <= colCount; j++)
-                            {
-                                if (!Double.TryParse(values.GetValue(i, j).ToString(), out arr[i - 1, j - 1]))
-                                    throw new Exception("Неверный формат данных в файле!");
-                            }
-                        }
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
-                        Marshal.ReleaseComObject(xlRange);
-                        Marshal.ReleaseComObject(xlWorksheet);
-                        xlWorkbook.Close();
-                        Marshal.ReleaseComObject(xlWorkbook);
-                        xlApp.Quit();
-                        Marshal.ReleaseComObject(xlApp);
-                    }
                 buttonComputeF.Visible = true;
-                //}
-                //catch (Exception ex)
-                //{
-                //MessageBox.Show(ex.Message);
-                //}
+                }
+                catch (Exception ex)
+                {
+                  MessageBox.Show(ex.Message);
+                }
             }
         }
 
@@ -441,6 +414,27 @@ namespace MulticriteriaOptimization
             }
             labelOptF.Text += ")";
             labelOptF.Visible = true;
+            buttonComputePenalty.Visible = true;
+        }
+
+        private void buttonComputePenalty_Click(object sender, EventArgs e)
+        {
+            double eps, a, step;
+            if (!Double.TryParse(textBoxEps.Text, out eps))
+                throw new Exception();
+            if (!Double.TryParse(textBoxAlpha.Text, out a))
+                throw new Exception();
+            if (!Double.TryParse(textBoxStep.Text, out step))
+                throw new Exception();
+            PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, a, step);
+            Stopwatch sw = Stopwatch.StartNew();
+            double[] x = pm.Calculate();
+            if(x == null)
+            {
+                MessageBox.Show("НЕ");
+            }
+            sw.Stop();
+            MessageBox.Show(sw.ElapsedMilliseconds.ToString());
         }
     }
 }

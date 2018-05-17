@@ -40,11 +40,21 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buttonCreateEmptyProblem = new System.Windows.Forms.Button();
             this.buttonOpenFromFile = new System.Windows.Forms.Button();
-            this.buttonCompute = new System.Windows.Forms.Button();
+            this.buttonComputeF = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.labelOptF = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBoxEps = new System.Windows.Forms.TextBox();
+            this.textBoxAlpha = new System.Windows.Forms.TextBox();
+            this.buttonComputePenalty = new System.Windows.Forms.Button();
+            this.textBoxStep = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -78,21 +88,21 @@
             // 
             // textBoxCountVar
             // 
-            this.textBoxCountVar.Location = new System.Drawing.Point(134, 115);
+            this.textBoxCountVar.Location = new System.Drawing.Point(133, 123);
             this.textBoxCountVar.Name = "textBoxCountVar";
             this.textBoxCountVar.Size = new System.Drawing.Size(42, 20);
             this.textBoxCountVar.TabIndex = 7;
             // 
             // textBoxCountConstraint
             // 
-            this.textBoxCountConstraint.Location = new System.Drawing.Point(134, 89);
+            this.textBoxCountConstraint.Location = new System.Drawing.Point(133, 97);
             this.textBoxCountConstraint.Name = "textBoxCountConstraint";
             this.textBoxCountConstraint.Size = new System.Drawing.Size(42, 20);
             this.textBoxCountConstraint.TabIndex = 6;
             // 
             // textBoxCountCriteria
             // 
-            this.textBoxCountCriteria.Location = new System.Drawing.Point(134, 63);
+            this.textBoxCountCriteria.Location = new System.Drawing.Point(133, 71);
             this.textBoxCountCriteria.Name = "textBoxCountCriteria";
             this.textBoxCountCriteria.Size = new System.Drawing.Size(42, 20);
             this.textBoxCountCriteria.TabIndex = 5;
@@ -100,7 +110,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 63);
+            this.label3.Location = new System.Drawing.Point(11, 71);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(95, 13);
             this.label3.TabIndex = 4;
@@ -109,7 +119,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(11, 90);
+            this.label2.Location = new System.Drawing.Point(10, 98);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(106, 13);
             this.label2.TabIndex = 3;
@@ -118,7 +128,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 114);
+            this.label1.Location = new System.Drawing.Point(11, 122);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(105, 13);
             this.label1.TabIndex = 2;
@@ -126,7 +136,7 @@
             // 
             // buttonCreateEmptyProblem
             // 
-            this.buttonCreateEmptyProblem.Location = new System.Drawing.Point(15, 151);
+            this.buttonCreateEmptyProblem.Location = new System.Drawing.Point(14, 149);
             this.buttonCreateEmptyProblem.Name = "buttonCreateEmptyProblem";
             this.buttonCreateEmptyProblem.Size = new System.Drawing.Size(125, 23);
             this.buttonCreateEmptyProblem.TabIndex = 1;
@@ -144,15 +154,16 @@
             this.buttonOpenFromFile.UseVisualStyleBackColor = true;
             this.buttonOpenFromFile.Click += new System.EventHandler(this.buttonOpenFromFile_Click);
             // 
-            // buttonCompute
+            // buttonComputeF
             // 
-            this.buttonCompute.Location = new System.Drawing.Point(27, 238);
-            this.buttonCompute.Name = "buttonCompute";
-            this.buttonCompute.Size = new System.Drawing.Size(125, 23);
-            this.buttonCompute.TabIndex = 2;
-            this.buttonCompute.Text = "Рассчитать";
-            this.buttonCompute.UseVisualStyleBackColor = true;
-            this.buttonCompute.Click += new System.EventHandler(this.buttonCompute_Click);
+            this.buttonComputeF.Location = new System.Drawing.Point(318, 436);
+            this.buttonComputeF.Name = "buttonComputeF";
+            this.buttonComputeF.Size = new System.Drawing.Size(125, 23);
+            this.buttonComputeF.TabIndex = 2;
+            this.buttonComputeF.Text = "Рассчитать вектор f*";
+            this.buttonComputeF.UseVisualStyleBackColor = true;
+            this.buttonComputeF.Visible = false;
+            this.buttonComputeF.Click += new System.EventHandler(this.buttonCompute_Click);
             // 
             // panel1
             // 
@@ -162,13 +173,100 @@
             this.panel1.Size = new System.Drawing.Size(549, 398);
             this.panel1.TabIndex = 3;
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.label4);
+            this.groupBox2.Controls.Add(this.textBoxStep);
+            this.groupBox2.Controls.Add(this.buttonComputePenalty);
+            this.groupBox2.Controls.Add(this.textBoxAlpha);
+            this.groupBox2.Controls.Add(this.textBoxEps);
+            this.groupBox2.Controls.Add(this.label7);
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Location = new System.Drawing.Point(12, 225);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(276, 205);
+            this.groupBox2.TabIndex = 4;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Метод штрафных функций";
+            // 
+            // labelOptF
+            // 
+            this.labelOptF.AutoSize = true;
+            this.labelOptF.Location = new System.Drawing.Point(481, 441);
+            this.labelOptF.Name = "labelOptF";
+            this.labelOptF.Size = new System.Drawing.Size(35, 13);
+            this.labelOptF.TabIndex = 5;
+            this.labelOptF.Text = "label5";
+            this.labelOptF.Visible = false;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(10, 34);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(84, 13);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "Погрешность e";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(84, 60);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(10, 13);
+            this.label7.TabIndex = 4;
+            this.label7.Text = "r";
+            // 
+            // textBoxEps
+            // 
+            this.textBoxEps.Location = new System.Drawing.Point(100, 34);
+            this.textBoxEps.Name = "textBoxEps";
+            this.textBoxEps.Size = new System.Drawing.Size(42, 20);
+            this.textBoxEps.TabIndex = 6;
+            // 
+            // textBoxAlpha
+            // 
+            this.textBoxAlpha.Location = new System.Drawing.Point(100, 60);
+            this.textBoxAlpha.Name = "textBoxAlpha";
+            this.textBoxAlpha.Size = new System.Drawing.Size(42, 20);
+            this.textBoxAlpha.TabIndex = 8;
+            // 
+            // buttonComputePenalty
+            // 
+            this.buttonComputePenalty.Location = new System.Drawing.Point(13, 122);
+            this.buttonComputePenalty.Name = "buttonComputePenalty";
+            this.buttonComputePenalty.Size = new System.Drawing.Size(75, 23);
+            this.buttonComputePenalty.TabIndex = 9;
+            this.buttonComputePenalty.Text = "Рассчитать";
+            this.buttonComputePenalty.UseVisualStyleBackColor = true;
+            this.buttonComputePenalty.Visible = false;
+            this.buttonComputePenalty.Click += new System.EventHandler(this.buttonComputePenalty_Click);
+            // 
+            // textBoxStep
+            // 
+            this.textBoxStep.Location = new System.Drawing.Point(100, 86);
+            this.textBoxStep.Name = "textBoxStep";
+            this.textBoxStep.Size = new System.Drawing.Size(42, 20);
+            this.textBoxStep.TabIndex = 10;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(61, 86);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(27, 13);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "Шаг";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(919, 442);
+            this.ClientSize = new System.Drawing.Size(919, 487);
+            this.Controls.Add(this.labelOptF);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.buttonCompute);
+            this.Controls.Add(this.buttonComputeF);
             this.Controls.Add(this.groupBox1);
             this.Name = "MainForm";
             this.Text = "Решение задач многокритериальной оптимизации";
@@ -176,7 +274,10 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -191,10 +292,19 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonCreateEmptyProblem;
         private System.Windows.Forms.Button buttonOpenFromFile;
-        private System.Windows.Forms.Button buttonCompute;
+        private System.Windows.Forms.Button buttonComputeF;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label labelOptF;
+        private System.Windows.Forms.TextBox textBoxAlpha;
+        private System.Windows.Forms.TextBox textBoxEps;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button buttonComputePenalty;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox textBoxStep;
     }
 }
 

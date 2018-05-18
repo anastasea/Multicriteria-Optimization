@@ -429,12 +429,8 @@ namespace MulticriteriaOptimization
             PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, a, step);
             Stopwatch sw = Stopwatch.StartNew();
             double[] x = pm.Calculate();
-            if(x == null)
-            {
-                MessageBox.Show("НЕ");
-            }
             sw.Stop();
-            MessageBox.Show(sw.ElapsedMilliseconds.ToString());
+            // MessageBox.Show(sw.ElapsedMilliseconds.ToString());
         }
     }
 }

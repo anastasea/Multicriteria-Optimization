@@ -60,24 +60,20 @@ namespace MulticriteriaOptimization
             for (int k = 0; ; k++)
             {
                 double[] prev = new double[x0.Length];
-                xkDescentIterations.Add(prev);
                 Array.Copy(xk, prev, xk.Length);
                 double[] sk = GetDerivativeInXk(xk);
                 gradDescentIterations.Add(sk);
                 step = BisectionMethod(-10000000, 10000000, xk);
-                double normprev = VectorNorm(xk);
-                double normxk = VectorNorm(xk);
-                if (normxk - normprev < epsilon && k > 1)
-                {
-                    break;
-                }
                 for (int i = 0; i < xk.Length; i++)
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
-                double fkprev = GetFunctionValue(prev);
-                double fknext = GetFunctionValue(xk);
-                funcValueDescentIterations.Add(fkprev);
+                double normprev = VectorNorm(prev);
+                double normxk = VectorNorm(xk);
+                if (normxk - normprev < epsilon)
+                {
+                    break;
+                }
             }
             return xk;
         }

@@ -44,14 +44,14 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.labelOptF = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.textBoxEps = new System.Windows.Forms.TextBox();
-            this.textBoxAlpha = new System.Windows.Forms.TextBox();
-            this.buttonComputePenalty = new System.Windows.Forms.Button();
-            this.textBoxStep = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.textBoxStep = new System.Windows.Forms.TextBox();
+            this.buttonComputePenalty = new System.Windows.Forms.Button();
+            this.textBoxAlpha = new System.Windows.Forms.TextBox();
+            this.textBoxEps = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.labelOptF = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -189,47 +189,21 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Метод штрафных функций";
             // 
-            // labelOptF
+            // label4
             // 
-            this.labelOptF.AutoSize = true;
-            this.labelOptF.Location = new System.Drawing.Point(481, 441);
-            this.labelOptF.Name = "labelOptF";
-            this.labelOptF.Size = new System.Drawing.Size(35, 13);
-            this.labelOptF.TabIndex = 5;
-            this.labelOptF.Text = "label5";
-            this.labelOptF.Visible = false;
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(61, 86);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(27, 13);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "Шаг";
             // 
-            // label5
+            // textBoxStep
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(10, 34);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(84, 13);
-            this.label5.TabIndex = 2;
-            this.label5.Text = "Погрешность e";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(84, 60);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(10, 13);
-            this.label7.TabIndex = 4;
-            this.label7.Text = "r";
-            // 
-            // textBoxEps
-            // 
-            this.textBoxEps.Location = new System.Drawing.Point(100, 34);
-            this.textBoxEps.Name = "textBoxEps";
-            this.textBoxEps.Size = new System.Drawing.Size(42, 20);
-            this.textBoxEps.TabIndex = 6;
-            // 
-            // textBoxAlpha
-            // 
-            this.textBoxAlpha.Location = new System.Drawing.Point(100, 60);
-            this.textBoxAlpha.Name = "textBoxAlpha";
-            this.textBoxAlpha.Size = new System.Drawing.Size(42, 20);
-            this.textBoxAlpha.TabIndex = 8;
+            this.textBoxStep.Location = new System.Drawing.Point(100, 86);
+            this.textBoxStep.Name = "textBoxStep";
+            this.textBoxStep.Size = new System.Drawing.Size(42, 20);
+            this.textBoxStep.TabIndex = 10;
             // 
             // buttonComputePenalty
             // 
@@ -242,21 +216,47 @@
             this.buttonComputePenalty.Visible = false;
             this.buttonComputePenalty.Click += new System.EventHandler(this.buttonComputePenalty_Click);
             // 
-            // textBoxStep
+            // textBoxAlpha
             // 
-            this.textBoxStep.Location = new System.Drawing.Point(100, 86);
-            this.textBoxStep.Name = "textBoxStep";
-            this.textBoxStep.Size = new System.Drawing.Size(42, 20);
-            this.textBoxStep.TabIndex = 10;
+            this.textBoxAlpha.Location = new System.Drawing.Point(100, 60);
+            this.textBoxAlpha.Name = "textBoxAlpha";
+            this.textBoxAlpha.Size = new System.Drawing.Size(42, 20);
+            this.textBoxAlpha.TabIndex = 8;
             // 
-            // label4
+            // textBoxEps
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(61, 86);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(27, 13);
-            this.label4.TabIndex = 11;
-            this.label4.Text = "Шаг";
+            this.textBoxEps.Location = new System.Drawing.Point(100, 34);
+            this.textBoxEps.Name = "textBoxEps";
+            this.textBoxEps.Size = new System.Drawing.Size(42, 20);
+            this.textBoxEps.TabIndex = 6;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(55, 60);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(33, 13);
+            this.label7.TabIndex = 4;
+            this.label7.Text = "aplha";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(10, 34);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(84, 13);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "Погрешность e";
+            // 
+            // labelOptF
+            // 
+            this.labelOptF.AutoSize = true;
+            this.labelOptF.Location = new System.Drawing.Point(481, 441);
+            this.labelOptF.Name = "labelOptF";
+            this.labelOptF.Size = new System.Drawing.Size(35, 13);
+            this.labelOptF.TabIndex = 5;
+            this.labelOptF.Text = "label5";
+            this.labelOptF.Visible = false;
             // 
             // MainForm
             // 

@@ -36,18 +36,20 @@ namespace MulticriteriaOptimization
         public double[] Calculate()
         {
             double[] xk = new double[prob.CountVariables];
+            double[] prev = new double[xk.Length];
+            double norm;
             //double[] xk = new double[2] { -0.5, -1};
-            double penalty = 100;
             int k = 1;
             do
             {
+                Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
                 penaltyIterations.Add(xk);
-                alphaK *= step;
-                penalty = GetPenaltyValue(xk);
+                alphaK += step;
+                norm = VectorNorm(SubstractVectors(prev, xk));
                 k++;
             }
-            while (penalty > epsilon);
+            while (norm > epsilon);
             return xk;
         }
 
@@ -55,7 +57,6 @@ namespace MulticriteriaOptimization
         {
             double step;
             double[] xk = new double[x0.Length];
-            double r = GetFunctionValue(xk);
             Array.Copy(x0, xk, x0.Length);
             for (int k = 0; ; k++)
             {
@@ -68,9 +69,8 @@ namespace MulticriteriaOptimization
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
-                double normprev = VectorNorm(prev);
-                double normxk = VectorNorm(xk);
-                if (normxk - normprev < epsilon)
+                double norm = VectorNorm(SubstractVectors(prev, xk));
+                if (norm < 0.1)
                 {
                     break;
                 }
@@ -88,20 +88,30 @@ namespace MulticriteriaOptimization
             return Math.Sqrt(res);
         }
 
+        public double[] SubstractVectors(double[] prev, double[] next)
+        {
+            double[] res = new double[prev.Length];
+            for (int i = 0; i < prev.Length; i++)
+            {
+                res[i] = next[i] - prev[i];
+            }
+            return res; 
+        }
+
         public double BisectionMethod(double a0, double b0, double[] xk)
         {
             double lk, mk;
             double epsilon = 0.01; 
             double delta = 0.5 * epsilon;
             double ak = a0, bk = b0;
+
+            double[] x1 = new double[xk.Length];
+            double[] x2 = new double[xk.Length];
+            double[] grad = GetDerivativeInXk(xk);
             do
             {
                 lk = (ak + bk - delta) / 2;
                 mk = (ak + bk + delta) / 2;
-                double[] x1 = new double[xk.Length];
-                double[] x2 = new double[xk.Length];
-                double[] grad = new double[xk.Length];
-                grad = GetDerivativeInXk(xk);
                 for (int i = 0; i < x1.Length; i++)
                 {
                     x1[i] = xk[i] - lk * grad[i];
@@ -229,9 +239,9 @@ namespace MulticriteriaOptimization
             bool contains = false;
             if (arr != null)
             {
-                for (int j = 0; j < prob.NotNonNegativeVarInd.Length; j++)
+                for (int i = 0; i < prob.NotNonNegativeVarInd.Length; i++)
                 {
-                    if (prob.NotNonNegativeVarInd[j] == val)
+                    if (prob.NotNonNegativeVarInd[i] == val)
                     {
                         contains = true;
                         break;

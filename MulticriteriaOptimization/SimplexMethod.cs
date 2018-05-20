@@ -234,7 +234,7 @@ namespace MulticriteriaOptimization
                 int pivotColumn = FindPivotColumn();
                 if (pivotColumn == -1)
                 {
-                    if (SimplexTable[SimplexTable.GetLength(0) - 1, 0] != 0)
+                    if (Math.Round(SimplexTable[SimplexTable.GetLength(0) - 1, 0], 10) != 0)
                     {
                         return double.NaN;
                     }

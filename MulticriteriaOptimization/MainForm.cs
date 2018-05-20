@@ -23,7 +23,7 @@ namespace MulticriteriaOptimization
         DataGridView criteriaTable;
         DataGridView coeffTable;
         DataGridView constTable;
-        string wrongFormatMessage = "Неверный формат данных в файле! Проверьте файл на наличие букв и лишних пробелов.";
+        string wrongFormatMessage = "Неверный формат данных в файле! Проверьте файл на соответствие правилам оформления исходных данных.";
 
         public MainForm()
         {
@@ -33,7 +33,7 @@ namespace MulticriteriaOptimization
             textBoxCountVar.Text = "4";
             textBoxAlpha.Text = "0,1";
             textBoxEps.Text = "0,1";
-            textBoxStep.Text = "2";
+            textBoxStep.Text = "10";
         }
 
         private void MainForm_Load(object sender, EventArgs e)

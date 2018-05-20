@@ -15,7 +15,6 @@ namespace MulticriteriaOptimization
         public double[,] ConstraintCoefficients { get; set; }
         public double[] Constants { get; set; }
         public MathSign[] ConstraintSigns { get; set; }
-        // По умолчанию предполагается, что на остальные переменные наложено условие неотрицательности
         public int[] NotNonNegativeVarInd { get; set; }
 
         public int CountConstraint { get; set; }

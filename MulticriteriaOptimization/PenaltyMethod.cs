@@ -37,9 +37,7 @@ namespace MulticriteriaOptimization
         {
             double[] xk = new double[prob.CountVariables];
             double[] prev = new double[xk.Length];
-            double norm; double penalty;
-            //double[] xk = new double[2] { -0.5, -1};
-            int k = 1;
+            double norm; 
             do
             {
                 Array.Copy(xk, prev, xk.Length);
@@ -47,8 +45,6 @@ namespace MulticriteriaOptimization
                 penaltyIterations.Add(xk);
                 alphaK += step;
                 norm = VectorNorm(SubstractVectors(prev, xk));
-                penalty = GetPenaltyValue(xk);
-                k++;
             }
             while (norm > epsilon);
             return xk;
@@ -70,13 +66,7 @@ namespace MulticriteriaOptimization
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
-                func = GetFunctionValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if(k==100000)
-                {
-                    double r = 0;
-                    break;
-                }
                 if (norm < 0.1)
                 {
                     break;
@@ -153,8 +143,6 @@ namespace MulticriteriaOptimization
             }
             sum += GetPenaltyValue(x);
             return sum;
-            //return x[0] * x[0] * x[0] + 2 * x[1] * x[1] - 3 * x[0] - 4 * x[1]; 
-            // return x[0] + x[1] + alphaK * (Math.Pow(x[0] * x[0] + x[1], 2) + Math.Max(0, x[0]*x[0]));
         }
         
         public double[] GetDerivativeInXk(double[] x)
@@ -206,10 +194,6 @@ namespace MulticriteriaOptimization
                 }
             }
             return sk;
-            //double[] sk = new double[2];
-            //sk[0] = 3 * x[0] * x[0] - 3;
-            //sk[1] = 4 * x[1] - 4;
-            //return sk;
         }
 
         public double GetPenaltyValue(double[] x)

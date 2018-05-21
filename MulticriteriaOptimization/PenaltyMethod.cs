@@ -37,7 +37,7 @@ namespace MulticriteriaOptimization
         {
             double[] xk = new double[prob.CountVariables];
             double[] prev = new double[xk.Length];
-            double norm;
+            double norm; double penalty;
             //double[] xk = new double[2] { -0.5, -1};
             int k = 1;
             do
@@ -47,6 +47,7 @@ namespace MulticriteriaOptimization
                 penaltyIterations.Add(xk);
                 alphaK += step;
                 norm = VectorNorm(SubstractVectors(prev, xk));
+                penalty = GetPenaltyValue(xk);
                 k++;
             }
             while (norm > epsilon);
@@ -55,8 +56,8 @@ namespace MulticriteriaOptimization
 
         public double[] DeepGradientDescent(double[] x0)
         {
-            double step;
             double[] xk = new double[x0.Length];
+            double func = GetFunctionValue(xk);
             Array.Copy(x0, xk, x0.Length);
             for (int k = 0; ; k++)
             {
@@ -69,7 +70,13 @@ namespace MulticriteriaOptimization
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
+                func = GetFunctionValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
+                if(k==100000)
+                {
+                    double r = 0;
+                    break;
+                }
                 if (norm < 0.1)
                 {
                     break;
@@ -147,9 +154,9 @@ namespace MulticriteriaOptimization
             sum += GetPenaltyValue(x);
             return sum;
             //return x[0] * x[0] * x[0] + 2 * x[1] * x[1] - 3 * x[0] - 4 * x[1]; 
+            // return x[0] + x[1] + alphaK * (Math.Pow(x[0] * x[0] + x[1], 2) + Math.Max(0, x[0]*x[0]));
         }
         
-        // Градиент функции sum((gi(x)-fi*)^2) + ak*P(x)
         public double[] GetDerivativeInXk(double[] x)
         {
             double[] sk = new double[x.Length];
@@ -187,7 +194,7 @@ namespace MulticriteriaOptimization
                     (prob.ConstraintSigns[j] == MathSign.GreaterThan) && (sum2[j] < 0) ||
                     prob.ConstraintSigns[j] == MathSign.Equal)
                     {
-                        sk[i] += sum2[j] * 2 * alphaK * prob.ConstraintCoefficients[j, i];
+                        sk[i] += 2 * alphaK * Math.Abs(sum2[j] * prob.ConstraintCoefficients[j, i]);
                     }
                 }
             }
@@ -195,7 +202,7 @@ namespace MulticriteriaOptimization
             {
                 if (!ContainsValue(prob.NotNonNegativeVarInd, i) && x[i] < 0)
                 {
-                    sk[i] += 2 * alphaK * x[i];
+                    sk[i] += 2 * alphaK * Math.Abs(x[i]);
                 }
             }
             return sk;

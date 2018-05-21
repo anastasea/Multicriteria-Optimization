@@ -23,7 +23,7 @@ namespace MulticriteriaOptimization
         DataGridView criteriaTable;
         DataGridView coeffTable;
         DataGridView constTable;
-        string wrongFormatMessage = "Неверный формат данных в файле! Проверьте файл на соответствие правилам оформления исходных данных.";
+        string wrongFileFormatMessage = "Неверный формат данных в файле! Проверьте файл на соответствие правилам оформления исходных данных.";
 
         public MainForm()
         {
@@ -32,7 +32,7 @@ namespace MulticriteriaOptimization
             textBoxCountCriteria.Text = "2";
             textBoxCountVar.Text = "4";
             textBoxAlpha.Text = "0,1";
-            textBoxEps.Text = "0,1";
+            textBoxEps.Text = "0,01";
             textBoxStep.Text = "10";
         }
 
@@ -270,11 +270,11 @@ namespace MulticriteriaOptimization
                         }
                         string[] split = fileLines[0].Split(' ');
                         if (!Int32.TryParse(split[0], out countCrit))
-                            throw new Exception(wrongFormatMessage);
+                            throw new Exception(wrongFileFormatMessage);
                         if (!Int32.TryParse(split[1], out countConstr))
-                            throw new Exception(wrongFormatMessage);
+                            throw new Exception(wrongFileFormatMessage);
                         if (!Int32.TryParse(split[2], out countVar))
-                            throw new Exception(wrongFormatMessage);
+                            throw new Exception(wrongFileFormatMessage);
 
                         bool[] minimize = new bool[countCrit];
                         double[,] criteriaCoefficients = new double[countCrit,countVar];
@@ -290,7 +290,7 @@ namespace MulticriteriaOptimization
                             for (int j = 1; j <= countVar; j++)
                             {
                                 if (!Double.TryParse(splitStr[j], out criteriaCoefficients[i - 1, j - 1]))
-                                    throw new Exception(wrongFormatMessage);
+                                    throw new Exception(wrongFileFormatMessage);
                             }
                         }
                         for (int i = countCrit + 1; i < countConstr + countCrit + 1; i++)
@@ -300,16 +300,16 @@ namespace MulticriteriaOptimization
                             for (int j = 0; j < countVar; j++)
                             {
                                 if (!Double.TryParse(splitStr[j], out constraintCoefficients[i - countCrit - 1, j]))
-                                    throw new Exception(wrongFormatMessage);
+                                    throw new Exception(wrongFileFormatMessage);
                             }
                             if (!Double.TryParse(splitStr[countVar + 1], out constants[i - countCrit - 1]))
-                                throw new Exception(wrongFormatMessage);
+                                throw new Exception(wrongFileFormatMessage);
                             switch(splitStr[countVar])
                             {
                                 case "<=": constraintSigns[i - countCrit - 1] = MathSign.LessThan; break;
                                 case ">=": constraintSigns[i - countCrit - 1] = MathSign.GreaterThan; break;
                                 case "=": constraintSigns[i - countCrit - 1] = MathSign.Equal; break;
-                                default: throw new Exception(wrongFormatMessage); 
+                                default: throw new Exception(wrongFileFormatMessage); 
                             }
                         }
                         if(fileLines.Length == countConstr + countCrit + 2)
@@ -319,7 +319,7 @@ namespace MulticriteriaOptimization
                             for(int i = 0; i < splitStr.Length; i++)
                             {
                                 if (!Int32.TryParse(splitStr[i], out NotNonNegativeVarInd[i]))
-                                    throw new Exception(wrongFormatMessage);
+                                    throw new Exception(wrongFileFormatMessage);
                             } 
                         }
                         else
@@ -347,62 +347,59 @@ namespace MulticriteriaOptimization
 
         private void buttonCompute_Click(object sender, EventArgs e)
         {
-            if(prob == null)
+            bool[] minimize = new bool[countCrit];
+            double[,] criteriaCoefficients = new double[countCrit, countVar];
+            double[,] constraintCoefficients = new double[countConstr, countVar];
+            double[] constants = new double[countConstr];
+            MathSign[] constraintSigns = new MathSign[countConstr];
+            int[] NotNonNegativeVarInd;
+            List<string> comboboxText = new List<string>();  
+            foreach(Control c in panel1.Controls)
             {
-                bool[] minimize = new bool[countCrit];
-                double[,] criteriaCoefficients = new double[countCrit, countVar];
-                double[,] constraintCoefficients = new double[countConstr, countVar];
-                double[] constants = new double[countConstr];
-                MathSign[] constraintSigns = new MathSign[countConstr];
-                int[] NotNonNegativeVarInd;
-                List<string> comboboxText = new List<string>();  
-                foreach(Control c in panel1.Controls)
-                {
-                    if(c is ComboBox)
-                        comboboxText.Add(((ComboBox)c).SelectedItem.ToString());
-                }
-                for(int i = 0; i < countCrit; i++)
-                {
-                    minimize[i] = comboboxText[i] == "MIN";
-                }
-                for (int i = countCrit; i < countCrit + countConstr; i++)
-                {
-                    switch(comboboxText[i])
-                    {
-                        case "<=": constraintSigns[i - countCrit] = MathSign.LessThan; break;
-                        case ">=": constraintSigns[i - countCrit] = MathSign.GreaterThan; break;
-                        case "=": constraintSigns[i - countCrit] = MathSign.Equal; break;
-                    }
-                }
-                List<int> tempNotNonNeg = new List<int>(); 
-                for (int i = countCrit + countConstr; i < countCrit + countConstr + countVar; i++)
-                {
-                    if(comboboxText[i] == " ")
-                    {
-                        tempNotNonNeg.Add(i - countCrit - countConstr);
-                    }
-                }
-                NotNonNegativeVarInd = tempNotNonNeg.ToArray();
-                for (int i = 0; i < criteriaTable.RowCount; i++)
-                {
-                    for (int j = 0; j < criteriaTable.ColumnCount; j++)
-                    {
-                        criteriaCoefficients[i,j] = Convert.ToDouble(criteriaTable[j, i].Value);
-                    }
-                }
-                for (int i = 0; i < coeffTable.RowCount; i++)
-                {
-                    for (int j = 0; j < coeffTable.ColumnCount; j++)
-                    {
-                        constraintCoefficients[i, j] = Convert.ToDouble(coeffTable[j, i].Value);
-                    }
-                }
-                for (int i = 0; i < constTable.RowCount; i++)
-                {
-                    constants[i] = Convert.ToDouble(constTable[0, i].Value);
-                }
-                prob = new MultiCriteriaProblem(minimize, criteriaCoefficients, constraintCoefficients, constants, constraintSigns, NotNonNegativeVarInd);
+                if(c is ComboBox)
+                    comboboxText.Add(((ComboBox)c).SelectedItem.ToString());
             }
+            for(int i = 0; i < countCrit; i++)
+            {
+                minimize[i] = comboboxText[i] == "MIN";
+            }
+            for (int i = countCrit; i < countCrit + countConstr; i++)
+            {
+                switch(comboboxText[i])
+                {
+                    case "<=": constraintSigns[i - countCrit] = MathSign.LessThan; break;
+                    case ">=": constraintSigns[i - countCrit] = MathSign.GreaterThan; break;
+                    case "=": constraintSigns[i - countCrit] = MathSign.Equal; break;
+                }
+            }
+            List<int> tempNotNonNeg = new List<int>(); 
+            for (int i = countCrit + countConstr; i < countCrit + countConstr + countVar; i++)
+            {
+                if(comboboxText[i] == " ")
+                {
+                    tempNotNonNeg.Add(i - countCrit - countConstr);
+                }
+            }
+            NotNonNegativeVarInd = tempNotNonNeg.ToArray();
+            for (int i = 0; i < criteriaTable.RowCount; i++)
+            {
+                for (int j = 0; j < criteriaTable.ColumnCount; j++)
+                {
+                    criteriaCoefficients[i,j] = Convert.ToDouble(criteriaTable[j, i].Value);
+                }
+            }
+            for (int i = 0; i < coeffTable.RowCount; i++)
+            {
+                for (int j = 0; j < coeffTable.ColumnCount; j++)
+                {
+                    constraintCoefficients[i, j] = Convert.ToDouble(coeffTable[j, i].Value);
+                }
+            }
+            for (int i = 0; i < constTable.RowCount; i++)
+            {
+                constants[i] = Convert.ToDouble(constTable[0, i].Value);
+            }
+            prob = new MultiCriteriaProblem(minimize, criteriaCoefficients, constraintCoefficients, constants, constraintSigns, NotNonNegativeVarInd);
             solutionsF = new double[prob.Minimize.Length];
             SimplexMethod sm;
             labelOptF.Text = "(";

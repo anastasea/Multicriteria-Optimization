@@ -51,6 +51,7 @@ namespace MulticriteriaOptimization
             createUIProblem(countCrit, countVar, countConstr);
             buttonComputeF.Visible = true;
             labelOptF.Visible = false;
+            labelProblem.Visible = false;
         }
 
         private void createUIProblem(int countCrit, int countVar, int countConstr)
@@ -251,6 +252,7 @@ namespace MulticriteriaOptimization
             prob = null;
             panel1.Controls.Clear();
             labelOptF.Visible = false;
+            labelProblem.Visible = false;
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".txt";
             dlg.Filter = "Текстовый документ (.txt)|*.txt|Excel-файл (.xlsx)|*.xlsx";
@@ -411,26 +413,57 @@ namespace MulticriteriaOptimization
             }
             labelOptF.Text += ")";
             labelOptF.Visible = true;
+            labelProblem.Text = "Решается следующая задача на заданном множестве ограничений:\r\n min ";
+            for(int i = 0; i  < prob.CriteriaCoefficients.GetLength(0); i++)
+            {
+                if(i > 1)
+                {
+                    labelProblem.Text += "\r\n";
+                }
+                labelProblem.Text += "(";
+                for (int j = 0; j < prob.CriteriaCoefficients.GetLength(1); j++)
+                {
+                    labelProblem.Text += prob.CriteriaCoefficients[i,j] + "X" + (j+1);
+                    if (j != prob.CriteriaCoefficients.GetLength(1) - 1)
+                    {
+                        labelProblem.Text += (prob.CriteriaCoefficients[i, j + 1] > 0) ? "+" : "-";
+                    }
+                }
+                labelProblem.Text += (solutionsF[i] > 0) ? "-" : "+";
+                labelProblem.Text += Math.Round(solutionsF[i],4);
+                labelProblem.Text += ")^2";
+                if(i != prob.CriteriaCoefficients.GetLength(0) - 1)
+                {
+                    labelProblem.Text += " + ";
+                }
+            }
+            labelProblem.Visible = true; 
+
             buttonComputePenalty.Visible = true;
         }
 
         private void buttonComputePenalty_Click(object sender, EventArgs e)
         {
-            double eps, a, step;
-            if (!Double.TryParse(textBoxEps.Text, out eps))
-                throw new Exception();
-            if (!Double.TryParse(textBoxAlpha.Text, out a))
-                throw new Exception();
-            if (!Double.TryParse(textBoxStep.Text, out step))
-                throw new Exception();
-            PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, a, step);
-            //Stopwatch sw = Stopwatch.StartNew();
-            //double[] x = pm.Calculate();
-            //sw.Stop();
-            ResultsForm res = new ResultsForm(pm);
-            res.Show();
-
-            // MessageBox.Show(sw.ElapsedMilliseconds.ToString());
+            try
+            {
+                double eps, a, step;
+                if (!Double.TryParse(textBoxEps.Text, out eps))
+                    throw new Exception();
+                if (!Double.TryParse(textBoxAlpha.Text, out a))
+                    throw new Exception();
+                if (!Double.TryParse(textBoxStep.Text, out step))
+                    throw new Exception();
+                PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, a, step);
+                //Stopwatch sw = Stopwatch.StartNew();
+                //double[] x = pm.Calculate();
+                //sw.Stop();
+                ResultsForm res = new ResultsForm(pm);
+                res.Show();
+            }
+            catch(Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
         }
     }
 }

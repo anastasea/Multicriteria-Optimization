@@ -39,9 +39,9 @@ namespace MulticriteriaOptimization
                 Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
                 PenaltyIterations.Add(xk);
+                penalty = GetPenaltyValue(xk);
                 alphaK += stepPenalty;
                 norm = VectorNorm(SubstractVectors(prev, xk));
-                penalty = GetPenaltyValue(xk);
             }
             while (norm > epsilon);
             return xk;
@@ -51,15 +51,19 @@ namespace MulticriteriaOptimization
         {
             gradDescentIterations.Clear();
             double[] xk = new double[x0.Length];
+            for(int i = 0; i < xk.Length; i++)
+            {
+                xk[i] = -1;
+            }
             double func = GetFunctionValue(xk);
             Array.Copy(x0, xk, x0.Length);
             for (int k = 0; ; k++)
             {
+                gradDescentIterations.Add(xk);
                 double[] prev = new double[x0.Length];
                 Array.Copy(xk, prev, xk.Length);
                 double[] sk = GetDerivativeInXk(xk);
-                gradDescentIterations.Add(sk);
-                double step = BisectionMethod(-100000000, 100000000, xk, sk);
+                double step = BisectionMethod(-1000, 1000, xk, sk);
                 //double step = 0.001;
                 for (int i = 0; i < xk.Length; i++)
                 {
@@ -67,12 +71,12 @@ namespace MulticriteriaOptimization
                 }
                 func = GetFunctionValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if(k==5000)
+                if(k==2500000)
                 {
                     double r = 0;
                     //break;
                 }
-                if (norm < 0.1)
+                if (norm < 0.15)
                 {
                     break;
                 }
@@ -103,7 +107,7 @@ namespace MulticriteriaOptimization
         public double BisectionMethod(double a0, double b0, double[] xk, double[] grad)
         {
             double lk, mk;
-            double epsilon = 0.01; 
+            double epsilon = 0.0001; 
             double delta = 0.5 * epsilon;
             double ak = a0, bk = b0;
 
@@ -127,7 +131,7 @@ namespace MulticriteriaOptimization
                     ak = lk;
                 }
             } while ((bk - ak) >= epsilon);
-            return (ak + bk) / 2; 
+            return Math.Abs((ak + bk) / 2); 
         }
 
         public double GoldenSectionSearch(double a0, double b0, double[] xk, double[] grad)

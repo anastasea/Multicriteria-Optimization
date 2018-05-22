@@ -52,6 +52,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.labelOptF = new System.Windows.Forms.Label();
+            this.labelProblem = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -258,11 +259,23 @@
             this.labelOptF.Text = "label5";
             this.labelOptF.Visible = false;
             // 
+            // labelProblem
+            // 
+            this.labelProblem.AutoSize = true;
+            this.labelProblem.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelProblem.Location = new System.Drawing.Point(315, 465);
+            this.labelProblem.Name = "labelProblem";
+            this.labelProblem.Size = new System.Drawing.Size(81, 15);
+            this.labelProblem.TabIndex = 6;
+            this.labelProblem.Text = "labelProblem";
+            this.labelProblem.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(919, 487);
+            this.ClientSize = new System.Drawing.Size(919, 518);
+            this.Controls.Add(this.labelProblem);
             this.Controls.Add(this.labelOptF);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.panel1);
@@ -305,6 +318,7 @@
         private System.Windows.Forms.Button buttonComputePenalty;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxStep;
+        private System.Windows.Forms.Label labelProblem;
     }
 }
 

@@ -39,5 +39,7 @@ namespace MulticriteriaOptimization
             }
             textBox1.Text += "Значение целевой функции: " + Math.Sqrt(penalty.GetFunctionValue(xOpt));
         }
+
+
     }
 }

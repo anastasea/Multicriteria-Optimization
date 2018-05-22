@@ -42,6 +42,10 @@ namespace MulticriteriaOptimization
                 penalty = GetPenaltyValue(xk);
                 alphaK += stepPenalty;
                 norm = VectorNorm(SubstractVectors(prev, xk));
+                if(PenaltyIterations.Count > 3000)
+                {
+                    break;
+                }
             }
             while (norm > epsilon);
             return xk;
@@ -53,7 +57,7 @@ namespace MulticriteriaOptimization
             double[] xk = new double[x0.Length];
             for(int i = 0; i < xk.Length; i++)
             {
-                xk[i] = -1;
+                xk[i] = -10;
             }
             double func = GetFunctionValue(xk);
             Array.Copy(x0, xk, x0.Length);
@@ -71,10 +75,10 @@ namespace MulticriteriaOptimization
                 }
                 func = GetFunctionValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if(k==2500000)
+                if(step > 99)
                 {
                     double r = 0;
-                    //break;
+                    break;
                 }
                 if (norm < 0.15)
                 {
@@ -131,37 +135,7 @@ namespace MulticriteriaOptimization
                     ak = lk;
                 }
             } while ((bk - ak) >= epsilon);
-            return Math.Abs((ak + bk) / 2); 
-        }
-
-        public double GoldenSectionSearch(double a0, double b0, double[] xk, double[] grad)
-        {
-            double lk, mk;
-            double epsilon = 0.01;
-            double delta = 0.5 * epsilon;
-            double ak = a0, bk = b0;
-
-            double[] x1 = new double[xk.Length];
-            double[] x2 = new double[xk.Length];
-            do
-            {
-                lk = (ak + bk - delta) / 2;
-                mk = (ak + bk + delta) / 2;
-                for (int i = 0; i < x1.Length; i++)
-                {
-                    x1[i] = xk[i] - lk * grad[i];
-                    x2[i] = xk[i] - mk * grad[i];
-                }
-                if (GetFunctionValue(x1) <= GetFunctionValue(x2))
-                {
-                    bk = mk;
-                }
-                else
-                {
-                    ak = lk;
-                }
-            } while ((bk - ak) >= epsilon);
-            return (ak + bk) / 2;
+            return (ak + bk) / 2; 
         }
                 
         public double GetFunctionValue(double[] x)
@@ -212,6 +186,7 @@ namespace MulticriteriaOptimization
                 }
                 sum2[i] -= prob.Constants[i];
             }
+            double pen = 0;
             for (int i = 0; i < sk.Length; i++)
             {
                 for (int j = 0; j < prob.ConstraintCoefficients.GetLength(0); j++)
@@ -221,6 +196,7 @@ namespace MulticriteriaOptimization
                     prob.ConstraintSigns[j] == MathSign.Equal)
                     {
                         sk[i] += 2 * alphaK * Math.Abs(sum2[j] * prob.ConstraintCoefficients[j, i]);
+                        pen += 2 * alphaK * Math.Abs(sum2[j] * prob.ConstraintCoefficients[j, i]);
                     }
                 }
             }
@@ -229,6 +205,7 @@ namespace MulticriteriaOptimization
                 if (!ContainsValue(prob.NotNonNegativeVarInd, i) && x[i] < 0)
                 {
                     sk[i] += 2 * alphaK * Math.Abs(x[i]);
+                    pen += 2 * alphaK * Math.Abs(x[i]);
                 }
             }
             return sk;

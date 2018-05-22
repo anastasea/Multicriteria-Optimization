@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.IO;
 
 namespace MulticriteriaOptimization
 {
@@ -40,6 +41,35 @@ namespace MulticriteriaOptimization
             textBox1.Text += "Значение целевой функции: " + Math.Sqrt(penalty.GetFunctionValue(xOpt));
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                saveFileDialog1.Filter = "Текстовый документ(.txt)| *.txt";
+                saveFileDialog1.RestoreDirectory = true;
+                saveFileDialog1.FilterIndex = 1;
 
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    string filename = saveFileDialog1.FileName;
+                    string extension = Path.GetExtension(filename);
+                    if (extension == ".txt")
+                    {
+                        using (StreamWriter sw = new StreamWriter(filename))
+                        {
+                            sw.Write(textBox1.Text);
+                        }
+                    }
+                    else
+                        throw new Exception("Неверное расширение файла!");
+                }
+                MessageBox.Show("Решение успешно сохранено!");
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
     }
 }

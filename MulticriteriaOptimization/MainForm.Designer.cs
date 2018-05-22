@@ -53,6 +53,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.labelOptF = new System.Windows.Forms.Label();
             this.labelProblem = new System.Windows.Forms.Label();
+            this.textBoxProb = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -270,11 +271,20 @@
             this.labelProblem.Text = "labelProblem";
             this.labelProblem.Visible = false;
             // 
+            // textBoxProb
+            // 
+            this.textBoxProb.Location = new System.Drawing.Point(318, 484);
+            this.textBoxProb.Name = "textBoxProb";
+            this.textBoxProb.Size = new System.Drawing.Size(549, 20);
+            this.textBoxProb.TabIndex = 7;
+            this.textBoxProb.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 518);
+            this.Controls.Add(this.textBoxProb);
             this.Controls.Add(this.labelProblem);
             this.Controls.Add(this.labelOptF);
             this.Controls.Add(this.groupBox2);
@@ -319,6 +329,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxStep;
         private System.Windows.Forms.Label labelProblem;
+        private System.Windows.Forms.TextBox textBoxProb;
     }
 }
 

@@ -52,6 +52,7 @@ namespace MulticriteriaOptimization
             buttonComputeF.Visible = true;
             labelOptF.Visible = false;
             labelProblem.Visible = false;
+            textBoxProb.Visible = false;
         }
 
         private void createUIProblem(int countCrit, int countVar, int countConstr)
@@ -253,6 +254,7 @@ namespace MulticriteriaOptimization
             panel1.Controls.Clear();
             labelOptF.Visible = false;
             labelProblem.Visible = false;
+            textBoxProb.Visible = false;
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".txt";
             dlg.Filter = "Текстовый документ (.txt)|*.txt|Excel-файл (.xlsx)|*.xlsx";
@@ -413,32 +415,29 @@ namespace MulticriteriaOptimization
             }
             labelOptF.Text += ")";
             labelOptF.Visible = true;
-            labelProblem.Text = "Решается следующая задача на заданном множестве ограничений:\r\n min ";
-            for(int i = 0; i  < prob.CriteriaCoefficients.GetLength(0); i++)
+            labelProblem.Text = "Решается следующая задача на заданном множестве ограничений:";
+            textBoxProb.Text = "min ";
+            for (int i = 0; i  < prob.CriteriaCoefficients.GetLength(0); i++)
             {
-                if(i > 1)
-                {
-                    labelProblem.Text += "\r\n";
-                }
-                labelProblem.Text += "(";
+                textBoxProb.Text += "(";
                 for (int j = 0; j < prob.CriteriaCoefficients.GetLength(1); j++)
                 {
-                    labelProblem.Text += prob.CriteriaCoefficients[i,j] + "X" + (j+1);
+                    textBoxProb.Text += prob.CriteriaCoefficients[i,j] + "X" + (j+1);
                     if (j != prob.CriteriaCoefficients.GetLength(1) - 1)
                     {
-                        labelProblem.Text += (prob.CriteriaCoefficients[i, j + 1] > 0) ? "+" : "-";
+                        textBoxProb.Text += (prob.CriteriaCoefficients[i, j + 1] > 0) ? "+" : "";
                     }
                 }
-                labelProblem.Text += (solutionsF[i] > 0) ? "-" : "+";
-                labelProblem.Text += Math.Round(solutionsF[i],4);
-                labelProblem.Text += ")^2";
+                textBoxProb.Text += (solutionsF[i] > 0) ? "-" : "+";
+                textBoxProb.Text += Math.Abs(Math.Round(solutionsF[i],4));
+                textBoxProb.Text += ")^2";
                 if(i != prob.CriteriaCoefficients.GetLength(0) - 1)
                 {
-                    labelProblem.Text += " + ";
+                    textBoxProb.Text += " + ";
                 }
             }
-            labelProblem.Visible = true; 
-
+            labelProblem.Visible = true;
+            textBoxProb.Visible = true;
             buttonComputePenalty.Visible = true;
         }
 

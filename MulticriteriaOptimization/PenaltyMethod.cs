@@ -11,7 +11,7 @@ namespace MulticriteriaOptimization
         MultiCriteriaProblem prob;
         double[] optF;
         double alphaK;
-        double step;
+        double stepPenalty;
         double[,] GradCoefficients;
         double epsilon;
         List<double[]> penaltyIterations;
@@ -25,7 +25,7 @@ namespace MulticriteriaOptimization
             this.optF = optF;
             this.epsilon = epsilon;
             this.alphaK = alphaK;
-            this.step = step;
+            this.stepPenalty = step;
             penaltyIterations = new List<double[]>();
             gradDescentIterations = new List<double[]>();
             xkDescentIterations = new List<double[]>();
@@ -37,14 +37,15 @@ namespace MulticriteriaOptimization
         {
             double[] xk = new double[prob.CountVariables];
             double[] prev = new double[xk.Length];
-            double norm; 
+            double norm; double penalty;
             do
             {
                 Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
                 penaltyIterations.Add(xk);
-                alphaK += step;
+                alphaK += stepPenalty;
                 norm = VectorNorm(SubstractVectors(prev, xk));
+                penalty = GetPenaltyValue(xk);
             }
             while (norm > epsilon);
             return xk;
@@ -61,12 +62,18 @@ namespace MulticriteriaOptimization
                 Array.Copy(xk, prev, xk.Length);
                 double[] sk = GetDerivativeInXk(xk);
                 gradDescentIterations.Add(sk);
-                step = BisectionMethod(-10000000, 10000000, xk);
+                double step = BisectionMethod(-100000000, 100000000, xk, sk);
                 for (int i = 0; i < xk.Length; i++)
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
+                func = GetFunctionValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
+                if(k==17000)
+                {
+                    double r = 0;
+                    //break;
+                }
                 if (norm < 0.1)
                 {
                     break;
@@ -95,7 +102,7 @@ namespace MulticriteriaOptimization
             return res; 
         }
 
-        public double BisectionMethod(double a0, double b0, double[] xk)
+        public double BisectionMethod(double a0, double b0, double[] xk, double[] grad)
         {
             double lk, mk;
             double epsilon = 0.01; 
@@ -104,7 +111,6 @@ namespace MulticriteriaOptimization
 
             double[] x1 = new double[xk.Length];
             double[] x2 = new double[xk.Length];
-            double[] grad = GetDerivativeInXk(xk);
             do
             {
                 lk = (ak + bk - delta) / 2;

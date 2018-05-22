@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MulticriteriaOptimization
 {
-    class PenaltyMethod
+    public class PenaltyMethod
     {
         MultiCriteriaProblem prob;
         double[] optF;
@@ -14,10 +14,8 @@ namespace MulticriteriaOptimization
         double stepPenalty;
         double[,] GradCoefficients;
         double epsilon;
-        List<double[]> penaltyIterations;
         List<double[]> gradDescentIterations;
-        List<double[]> xkDescentIterations;
-        List<double> funcValueDescentIterations;
+        public List<double[]> PenaltyIterations { get; set; }
 
         public PenaltyMethod(MultiCriteriaProblem prob, double[] optF, double epsilon, double alphaK, double step)
         {
@@ -26,10 +24,8 @@ namespace MulticriteriaOptimization
             this.epsilon = epsilon;
             this.alphaK = alphaK;
             this.stepPenalty = step;
-            penaltyIterations = new List<double[]>();
+            PenaltyIterations = new List<double[]>();
             gradDescentIterations = new List<double[]>();
-            xkDescentIterations = new List<double[]>();
-            funcValueDescentIterations = new List<double>();
             GradCoefficients = new double[prob.CriteriaCoefficients.GetLength(0), prob.CriteriaCoefficients.GetLength(1)];
         }
 
@@ -42,7 +38,7 @@ namespace MulticriteriaOptimization
             {
                 Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
-                penaltyIterations.Add(xk);
+                PenaltyIterations.Add(xk);
                 alphaK += stepPenalty;
                 norm = VectorNorm(SubstractVectors(prev, xk));
                 penalty = GetPenaltyValue(xk);
@@ -53,6 +49,7 @@ namespace MulticriteriaOptimization
 
         public double[] DeepGradientDescent(double[] x0)
         {
+            gradDescentIterations.Clear();
             double[] xk = new double[x0.Length];
             double func = GetFunctionValue(xk);
             Array.Copy(x0, xk, x0.Length);
@@ -63,13 +60,14 @@ namespace MulticriteriaOptimization
                 double[] sk = GetDerivativeInXk(xk);
                 gradDescentIterations.Add(sk);
                 double step = BisectionMethod(-100000000, 100000000, xk, sk);
+                //double step = 0.001;
                 for (int i = 0; i < xk.Length; i++)
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
                 func = GetFunctionValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if(k==17000)
+                if(k==5000)
                 {
                     double r = 0;
                     //break;
@@ -130,6 +128,36 @@ namespace MulticriteriaOptimization
                 }
             } while ((bk - ak) >= epsilon);
             return (ak + bk) / 2; 
+        }
+
+        public double GoldenSectionSearch(double a0, double b0, double[] xk, double[] grad)
+        {
+            double lk, mk;
+            double epsilon = 0.01;
+            double delta = 0.5 * epsilon;
+            double ak = a0, bk = b0;
+
+            double[] x1 = new double[xk.Length];
+            double[] x2 = new double[xk.Length];
+            do
+            {
+                lk = (ak + bk - delta) / 2;
+                mk = (ak + bk + delta) / 2;
+                for (int i = 0; i < x1.Length; i++)
+                {
+                    x1[i] = xk[i] - lk * grad[i];
+                    x2[i] = xk[i] - mk * grad[i];
+                }
+                if (GetFunctionValue(x1) <= GetFunctionValue(x2))
+                {
+                    bk = mk;
+                }
+                else
+                {
+                    ak = lk;
+                }
+            } while ((bk - ak) >= epsilon);
+            return (ak + bk) / 2;
         }
                 
         public double GetFunctionValue(double[] x)

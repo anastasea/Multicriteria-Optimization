@@ -424,9 +424,12 @@ namespace MulticriteriaOptimization
             if (!Double.TryParse(textBoxStep.Text, out step))
                 throw new Exception();
             PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, a, step);
-            Stopwatch sw = Stopwatch.StartNew();
-            double[] x = pm.Calculate();
-            sw.Stop();
+            //Stopwatch sw = Stopwatch.StartNew();
+            //double[] x = pm.Calculate();
+            //sw.Stop();
+            ResultsForm res = new ResultsForm(pm);
+            res.Show();
+
             // MessageBox.Show(sw.ElapsedMilliseconds.ToString());
         }
     }

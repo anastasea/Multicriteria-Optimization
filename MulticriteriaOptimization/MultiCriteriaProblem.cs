@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MulticriteriaOptimization
 {
-    enum MathSign { GreaterThan, LessThan, Equal }
+    public enum MathSign { GreaterThan, LessThan, Equal }
 
-    class MultiCriteriaProblem
+    public class MultiCriteriaProblem
     {
         public bool[] Minimize { get; set; }
         public double[,] CriteriaCoefficients { get; set; }

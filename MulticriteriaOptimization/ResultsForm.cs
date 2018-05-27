@@ -25,6 +25,7 @@ namespace MulticriteriaOptimization
             xOpt = pm.Calculate();
             sw.Stop();
             WriteResults();
+            label1.Text = "Время работы программы: " + sw.Elapsed.ToString(@"m\:ss\.ff");
         }
 
         private void WriteResults()
@@ -36,9 +37,20 @@ namespace MulticriteriaOptimization
                 {
                     textBox1.Text += Math.Round(penalty.PenaltyIterations[i][j], 4) + "   ";
                 }
+                // textBox1.Text += "f = " + Math.Round(Math.Sqrt(penalty.GetFunctionValue(penalty.PenaltyIterations[i])), 4);
                 textBox1.Text += "\r\n";
             }
-            textBox1.Text += "Значение целевой функции: " + Math.Sqrt(penalty.GetFunctionValue(xOpt));
+            textBox1.Text += "Расстояние до идеальной точки: " + (Math.Sqrt(penalty.GetFunctionValue(xOpt)))+ "\r\n";
+            for (int i = 0; i < penalty.Prob.CountConstraint; i++)
+            {
+                double p = penalty.CountDifferenceForConstraints(xOpt,i);
+                textBox1.Text += (p!=0)? "Ограничение " + (i+1) + " нарушено на " + p + " единиц. \r\n":"Ограничение "+(i+1)+ " не нарушено. \r\n";
+            }
+            for (int i = 0; i < penalty.Prob.CountVariables; i++)
+            {
+                double p = penalty.CountDifferenceForNonNegativityConstraints(xOpt, i);
+                textBox1.Text += (p != 0) ? "Ограничение на неотрицательгость X" + (i + 1) + " нарушено на " + p + " единиц. \r\n" : "Ограничение на неотрицательность X" + (i + 1) + " не нарушено. \r\n";
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -70,6 +82,11 @@ namespace MulticriteriaOptimization
             {
                 MessageBox.Show(exc.Message);
             }
+        }
+
+        private void ResultsForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

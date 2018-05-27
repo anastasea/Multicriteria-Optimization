@@ -3,25 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace MulticriteriaOptimization
 {
     public class PenaltyMethod
     {
-        MultiCriteriaProblem prob;
+        public MultiCriteriaProblem Prob { get; set; }
         double[] optF;
         double alphaK;
         double stepPenalty;
         double[,] GradCoefficients;
         double epsilon;
+        double epsilonGrad;
         List<double[]> gradDescentIterations;
         public List<double[]> PenaltyIterations { get; set; }
 
-        public PenaltyMethod(MultiCriteriaProblem prob, double[] optF, double epsilon, double alphaK, double step)
+        public PenaltyMethod(MultiCriteriaProblem prob, double[] optF, double epsilon, double epsilonGrad, double alphaK, double step)
         {
-            this.prob = prob;
+            this.Prob = prob;
             this.optF = optF;
             this.epsilon = epsilon;
+            this.epsilonGrad = epsilonGrad;
             this.alphaK = alphaK;
             this.stepPenalty = step;
             PenaltyIterations = new List<double[]>();
@@ -31,21 +34,22 @@ namespace MulticriteriaOptimization
 
         public double[] Calculate()
         {
-            double[] xk = new double[prob.CountVariables];
+            double[] xk = new double[Prob.CountVariables];
+            for (int i = 0; i < xk.Length; i++)
+            {
+                xk[i] = -1;
+            }
             double[] prev = new double[xk.Length];
             double norm; double penalty;
             do
             {
                 Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
+                if (xk[0] == Double.NaN) break;
                 PenaltyIterations.Add(xk);
                 penalty = GetPenaltyValue(xk);
                 alphaK += stepPenalty;
                 norm = VectorNorm(SubstractVectors(prev, xk));
-                if(PenaltyIterations.Count > 3000)
-                {
-                    break;
-                }
             }
             while (norm > epsilon);
             return xk;
@@ -55,35 +59,60 @@ namespace MulticriteriaOptimization
         {
             gradDescentIterations.Clear();
             double[] xk = new double[x0.Length];
-            for(int i = 0; i < xk.Length; i++)
-            {
-                xk[i] = -10;
-            }
-            double func = GetFunctionValue(xk);
             Array.Copy(x0, xk, x0.Length);
+            double func = GetFunctionValue(xk) + GetPenaltyValue(xk); 
             for (int k = 0; ; k++)
             {
                 gradDescentIterations.Add(xk);
                 double[] prev = new double[x0.Length];
                 Array.Copy(xk, prev, xk.Length);
                 double[] sk = GetDerivativeInXk(xk);
-                double step = BisectionMethod(-1000, 1000, xk, sk);
+                double step = BisectionMethod(-100, 100, xk, sk);
                 //double step = 0.001;
                 for (int i = 0; i < xk.Length; i++)
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
-                func = GetFunctionValue(xk);
+                func = GetFunctionValue(xk) + GetPenaltyValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if(step > 99)
-                {
-                    double r = 0;
-                    break;
-                }
-                if (norm < 0.15)
+                if (norm < epsilonGrad || k > 500000)
                 {
                     break;
                 }
+                //if (step > 90)  break;
+            }
+            return xk;
+        }
+
+        public double[] NewtonMethod(double[] x0)
+        {
+            double[] xk = new double[x0.Length];
+            Array.Copy(x0, xk, x0.Length);
+            double func = GetFunctionValue(xk) + GetPenaltyValue(xk);
+            for (int k = 0; ; k++)
+            {
+                gradDescentIterations.Add(xk);
+                double[] prev = new double[x0.Length];
+                Array.Copy(xk, prev, xk.Length);
+                double[] sk = GetDerivativeInXk(xk);
+                double[,] hess = GetHessianMatrix(xk);
+                var  M = Matrix<double>.Build;
+                var V = Vector<double>.Build;
+                Vector<double> grad = V.DenseOfArray(sk);
+                double[,] inverse = M.DenseOfArray(hess).Inverse().ToArray();
+                double[] inverseHessMultiGrad = M.DenseOfArray(hess).Inverse().LeftMultiply(grad).ToArray();
+                double step = BisectionMethodForNewton(-1000, 1000, xk, inverseHessMultiGrad);
+                for (int i = 0; i < xk.Length; i++)
+                {
+                    xk[i] = xk[i] - step * inverseHessMultiGrad[i];
+                }
+                func = GetFunctionValue(xk) + GetPenaltyValue(xk); 
+                double norm = VectorNorm(SubstractVectors(prev, xk));
+                if (norm <= 0.1)
+                {
+                    break;
+                }
+                if (xk[0] == Double.NaN) break;
             }
             return xk;
         }
@@ -111,7 +140,7 @@ namespace MulticriteriaOptimization
         public double BisectionMethod(double a0, double b0, double[] xk, double[] grad)
         {
             double lk, mk;
-            double epsilon = 0.0001; 
+            double epsilon = 0.000000000001; 
             double delta = 0.5 * epsilon;
             double ak = a0, bk = b0;
 
@@ -126,7 +155,7 @@ namespace MulticriteriaOptimization
                     x1[i] = xk[i] - lk * grad[i];
                     x2[i] = xk[i] - mk * grad[i];
                 }
-                if (GetFunctionValue(x1) <= GetFunctionValue(x2))
+                if (GetFunctionValue(x1) + GetPenaltyValue(x1)  <= GetFunctionValue(x2) + GetPenaltyValue(x2))
                 {
                     bk = mk;
                 }
@@ -137,75 +166,102 @@ namespace MulticriteriaOptimization
             } while ((bk - ak) >= epsilon);
             return (ak + bk) / 2; 
         }
-                
+
+        public double BisectionMethodForNewton(double a0, double b0, double[] xk, double[] inverseHessMultiGrad)
+        {
+            double lk, mk;
+            double epsilon = 0.0001;
+            double delta = 0.5 * epsilon;
+            double ak = a0, bk = b0;
+
+            double[] x1 = new double[xk.Length];
+            double[] x2 = new double[xk.Length];
+            do
+            {
+                lk = (ak + bk - delta) / 2;
+                mk = (ak + bk + delta) / 2;
+                for (int i = 0; i < x1.Length; i++)
+                {
+                    x1[i] = xk[i] - lk * inverseHessMultiGrad[i];
+                    x2[i] = xk[i] - mk * inverseHessMultiGrad[i];
+                }
+                if (GetFunctionValue(x1) + GetPenaltyValue(x1) <= GetFunctionValue(x2) + GetPenaltyValue(x2))
+                {
+                    bk = mk;
+                }
+                else
+                {
+                    ak = lk;
+                }
+            } while ((bk - ak) >= epsilon);
+            return (ak + bk) / 2;
+        }
+
         public double GetFunctionValue(double[] x)
         {
             double sum = 0;
             double temp = 0;
-            for (int i = 0; i < prob.CriteriaCoefficients.GetLength(0); i++)
+            for (int i = 0; i < Prob.CriteriaCoefficients.GetLength(0); i++)
             {
                 temp = 0;
-                for (int j = 0; j < prob.CriteriaCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.CriteriaCoefficients.GetLength(1); j++)
                 {
-                    temp += prob.CriteriaCoefficients[i, j] * x[j];
+                    temp += Prob.CriteriaCoefficients[i, j] * x[j];
                 }
                 temp -= optF[i];
                 temp *= temp;
                 sum += temp;
             }
-            sum += GetPenaltyValue(x);
+            //sum += GetPenaltyValue(x);
             return sum;
         }
         
         public double[] GetDerivativeInXk(double[] x)
         {
             double[] sk = new double[x.Length];
-            double[] sum = new double[prob.CriteriaCoefficients.GetLength(0)];
-            for (int i = 0; i < prob.CriteriaCoefficients.GetLength(0); i++)
+            double[] sum = new double[Prob.CriteriaCoefficients.GetLength(0)];
+            for (int i = 0; i < Prob.CriteriaCoefficients.GetLength(0); i++)
             {
-                for (int j = 0; j < prob.CriteriaCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.CriteriaCoefficients.GetLength(1); j++)
                 {
-                    sum[i] += prob.CriteriaCoefficients[i,j] * x[j];
+                    sum[i] += Prob.CriteriaCoefficients[i,j] * x[j];
                 }
                 sum[i] -= optF[i];
                 sum[i] *= 2;
             }
             for (int i = 0; i < sk.Length; i++)
             {
-                for (int j = 0; j < prob.CriteriaCoefficients.GetLength(0); j++)
+                for (int j = 0; j < Prob.CriteriaCoefficients.GetLength(0); j++)
                 {
-                    sk[i] += sum[j] * prob.CriteriaCoefficients[j, i];
+                    sk[i] += sum[j] * Prob.CriteriaCoefficients[j, i];
                 }
             }
-            double[] sum2 = new double[prob.ConstraintCoefficients.GetLength(0)];
-            for (int i = 0; i < prob.ConstraintCoefficients.GetLength(0); i++)
+            double[] sum2 = new double[Prob.ConstraintCoefficients.GetLength(0)];
+            for (int i = 0; i < Prob.ConstraintCoefficients.GetLength(0); i++)
             {
-                for (int j = 0; j < prob.ConstraintCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
                 {
-                    sum2[i] += prob.ConstraintCoefficients[i, j] * x[j];
+                    sum2[i] += Prob.ConstraintCoefficients[i, j] * x[j];
                 }
-                sum2[i] -= prob.Constants[i];
+                sum2[i] -= Prob.Constants[i];
             }
-            double pen = 0;
             for (int i = 0; i < sk.Length; i++)
             {
-                for (int j = 0; j < prob.ConstraintCoefficients.GetLength(0); j++)
+                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(0); j++)
                 {
-                    if ((prob.ConstraintSigns[j] == MathSign.LessThan) && (sum2[j] > 0) ||
-                    (prob.ConstraintSigns[j] == MathSign.GreaterThan) && (sum2[j] < 0) ||
-                    prob.ConstraintSigns[j] == MathSign.Equal)
+                    if ((Prob.ConstraintSigns[j] == MathSign.LessThan) && (sum2[j] > 0) ||
+                    (Prob.ConstraintSigns[j] == MathSign.GreaterThan) && (sum2[j] < 0) ||
+                    Prob.ConstraintSigns[j] == MathSign.Equal)
                     {
-                        sk[i] += 2 * alphaK * Math.Abs(sum2[j] * prob.ConstraintCoefficients[j, i]);
-                        pen += 2 * alphaK * Math.Abs(sum2[j] * prob.ConstraintCoefficients[j, i]);
+                        sk[i] += 2 * alphaK * Math.Abs(sum2[j] * Prob.ConstraintCoefficients[j, i]);
                     }
                 }
             }
-            for (int i = 0; i < prob.CountVariables; i++)
+            for (int i = 0; i < Prob.CountVariables; i++)
             {
-                if (!ContainsValue(prob.NotNonNegativeVarInd, i) && x[i] < 0)
+                if (!ContainsValue(Prob.NotNonNegativeVarInd, i) && x[i] < 0)
                 {
                     sk[i] += 2 * alphaK * Math.Abs(x[i]);
-                    pen += 2 * alphaK * Math.Abs(x[i]);
                 }
             }
             return sk;
@@ -214,25 +270,25 @@ namespace MulticriteriaOptimization
         public double GetPenaltyValue(double[] x)
         {
             double sum = 0;
-            for (int i = 0; i < prob.ConstraintCoefficients.GetLength(0); i++)
+            for (int i = 0; i < Prob.ConstraintCoefficients.GetLength(0); i++)
             {
                 double temp = 0;
-                for (int j = 0; j < prob.ConstraintCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
                 {
-                    temp += prob.ConstraintCoefficients[i, j] * x[j];
+                    temp += Prob.ConstraintCoefficients[i, j] * x[j];
                 }
-                temp -= prob.Constants[i];
+                temp -= Prob.Constants[i];
 
-                if ((prob.ConstraintSigns[i] == MathSign.LessThan) && (temp > 0) ||
-                    (prob.ConstraintSigns[i] == MathSign.GreaterThan) && (temp < 0) ||
-                    prob.ConstraintSigns[i] == MathSign.Equal)
+                if ((Prob.ConstraintSigns[i] == MathSign.LessThan) && (temp > 0) ||
+                    (Prob.ConstraintSigns[i] == MathSign.GreaterThan) && (temp < 0) ||
+                    Prob.ConstraintSigns[i] == MathSign.Equal)
                 {
                     sum += temp * temp * alphaK;
                 }
             }
-            for(int i = 0; i < prob.CountVariables; i++)
+            for(int i = 0; i < Prob.CountVariables; i++)
             {
-                if(!ContainsValue(prob.NotNonNegativeVarInd,i) && x[i] < 0)
+                if(!ContainsValue(Prob.NotNonNegativeVarInd,i) && x[i] < 0)
                 {
                     sum += alphaK * x[i] * x[i];
                 }
@@ -245,9 +301,9 @@ namespace MulticriteriaOptimization
             bool contains = false;
             if (arr != null)
             {
-                for (int i = 0; i < prob.NotNonNegativeVarInd.Length; i++)
+                for (int i = 0; i < Prob.NotNonNegativeVarInd.Length; i++)
                 {
-                    if (prob.NotNonNegativeVarInd[i] == val)
+                    if (Prob.NotNonNegativeVarInd[i] == val)
                     {
                         contains = true;
                         break;
@@ -255,6 +311,79 @@ namespace MulticriteriaOptimization
                 }
             }
             return contains;
+        }
+
+        private double[,] GetHessianMatrix(double[] x)
+        {
+            double[,] res = new double[Prob.CountVariables, Prob.CountVariables];
+            for(int k = 0; k < Prob.CountVariables; k++)
+            {
+                for(int m = 0; m < Prob.CountVariables; m++ )
+                {
+                    for (int i = 0; i < Prob.CriteriaCoefficients.GetLength(0); i++)
+                    {
+                        res[k, m] += 2 * Prob.CriteriaCoefficients[i, k] * Prob.CriteriaCoefficients[i, m];
+                    }
+                }
+            }
+            double[] sum2 = new double[Prob.ConstraintCoefficients.GetLength(0)];
+            for (int i = 0; i < Prob.ConstraintCoefficients.GetLength(0); i++)
+            {
+                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
+                {
+                    sum2[i] += Prob.ConstraintCoefficients[i, j] * x[j];
+                }
+                sum2[i] -= Prob.Constants[i];
+                if (Prob.ConstraintSigns[i] == MathSign.GreaterThan)
+                {
+                    sum2[i] *= -1;
+                }
+            }
+            for (int k = 0; k < Prob.CountVariables; k++)
+            {
+                for (int m = 0; m < Prob.CountVariables; m++)
+                {
+                    for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(0); j++)
+                    {
+                        if ((Prob.ConstraintSigns[j] == MathSign.LessThan) && (sum2[j] > 0) ||
+                            (Prob.ConstraintSigns[j] == MathSign.GreaterThan) && (sum2[j] > 0) ||
+                        Prob.ConstraintSigns[j] == MathSign.Equal)
+                        {
+                            res[k, m] += 2 * alphaK * Prob.ConstraintCoefficients[j, k] * Prob.ConstraintCoefficients[j, m];
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+
+        public double CountDifferenceForConstraints(double[] x, int constrInd)
+        {
+            double sum = 0;
+            double temp = 0;
+            for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
+            {
+                temp += Prob.ConstraintCoefficients[constrInd, j] * x[j];
+            }
+            temp -= Prob.Constants[constrInd];
+
+            if ((Prob.ConstraintSigns[constrInd] == MathSign.LessThan) && (temp > 0) ||
+                (Prob.ConstraintSigns[constrInd] == MathSign.GreaterThan) && (temp < 0) ||
+                Prob.ConstraintSigns[constrInd] == MathSign.Equal)
+            {
+                sum += Math.Abs(temp);
+            }
+            return sum;
+        }
+
+        public double CountDifferenceForNonNegativityConstraints(double[] x, int constrInd)
+        {
+            double sum = 0;
+            if (!ContainsValue(Prob.NotNonNegativeVarInd, constrInd) && x[constrInd] < 0)
+            {
+                sum += Math.Abs(x[constrInd]);
+            }
+            return sum;
         }
 
     }

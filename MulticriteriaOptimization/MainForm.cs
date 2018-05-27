@@ -33,6 +33,7 @@ namespace MulticriteriaOptimization
             textBoxCountVar.Text = "4";
             textBoxAlpha.Text = "0,1";
             textBoxEps.Text = "0,01";
+            textBoxEpsGrad.Text = "0,01";
             textBoxStep.Text = "10";
         }
 
@@ -257,7 +258,7 @@ namespace MulticriteriaOptimization
             textBoxProb.Visible = false;
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".txt";
-            dlg.Filter = "Текстовый документ (.txt)|*.txt|Excel-файл (.xlsx)|*.xlsx";
+            dlg.Filter = "Текстовый документ (.txt)| *.txt";
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
@@ -425,7 +426,7 @@ namespace MulticriteriaOptimization
                     textBoxProb.Text += prob.CriteriaCoefficients[i,j] + "X" + (j+1);
                     if (j != prob.CriteriaCoefficients.GetLength(1) - 1)
                     {
-                        textBoxProb.Text += (prob.CriteriaCoefficients[i, j + 1] > 0) ? "+" : "";
+                        textBoxProb.Text += (prob.CriteriaCoefficients[i, j + 1] >= 0) ? "+" : "";
                     }
                 }
                 textBoxProb.Text += (solutionsF[i] > 0) ? "-" : "+";
@@ -445,14 +446,16 @@ namespace MulticriteriaOptimization
         {
             try
             {
-                double eps, a, step;
+                double eps, epsGrad, a, step;
                 if (!Double.TryParse(textBoxEps.Text, out eps))
+                    throw new Exception();
+                if (!Double.TryParse(textBoxEpsGrad.Text, out epsGrad))
                     throw new Exception();
                 if (!Double.TryParse(textBoxAlpha.Text, out a))
                     throw new Exception();
                 if (!Double.TryParse(textBoxStep.Text, out step))
                     throw new Exception();
-                PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, a, step);
+                PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, epsGrad, a, step);
                 //Stopwatch sw = Stopwatch.StartNew();
                 //double[] x = pm.Calculate();
                 //sw.Stop();

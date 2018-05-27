@@ -54,9 +54,13 @@
             this.labelOptF = new System.Windows.Forms.Label();
             this.labelProblem = new System.Windows.Forms.Label();
             this.textBoxProb = new System.Windows.Forms.TextBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.textBoxEpsGrad = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -179,14 +183,13 @@
             // 
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.textBoxStep);
-            this.groupBox2.Controls.Add(this.buttonComputePenalty);
             this.groupBox2.Controls.Add(this.textBoxAlpha);
             this.groupBox2.Controls.Add(this.textBoxEps);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Location = new System.Drawing.Point(12, 225);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(276, 205);
+            this.groupBox2.Size = new System.Drawing.Size(276, 116);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Метод штрафных функций";
@@ -209,7 +212,7 @@
             // 
             // buttonComputePenalty
             // 
-            this.buttonComputePenalty.Location = new System.Drawing.Point(13, 122);
+            this.buttonComputePenalty.Location = new System.Drawing.Point(12, 431);
             this.buttonComputePenalty.Name = "buttonComputePenalty";
             this.buttonComputePenalty.Size = new System.Drawing.Size(75, 23);
             this.buttonComputePenalty.TabIndex = 9;
@@ -235,11 +238,11 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(55, 60);
+            this.label7.Location = new System.Drawing.Point(0, 60);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(33, 13);
+            this.label7.Size = new System.Drawing.Size(91, 13);
             this.label7.TabIndex = 4;
-            this.label7.Text = "aplha";
+            this.label7.Text = "Начальное aplha";
             // 
             // label5
             // 
@@ -279,13 +282,42 @@
             this.textBoxProb.TabIndex = 7;
             this.textBoxProb.Visible = false;
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.textBoxEpsGrad);
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Location = new System.Drawing.Point(12, 343);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(276, 72);
+            this.groupBox3.TabIndex = 10;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Метод наискорейшего спуска";
+            // 
+            // textBoxEpsGrad
+            // 
+            this.textBoxEpsGrad.Location = new System.Drawing.Point(100, 34);
+            this.textBoxEpsGrad.Name = "textBoxEpsGrad";
+            this.textBoxEpsGrad.Size = new System.Drawing.Size(42, 20);
+            this.textBoxEpsGrad.TabIndex = 6;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(10, 34);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(84, 13);
+            this.label9.TabIndex = 2;
+            this.label9.Text = "Погрешность e";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 518);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.textBoxProb);
             this.Controls.Add(this.labelProblem);
+            this.Controls.Add(this.buttonComputePenalty);
             this.Controls.Add(this.labelOptF);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.panel1);
@@ -299,6 +331,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -330,6 +364,9 @@
         private System.Windows.Forms.TextBox textBoxStep;
         private System.Windows.Forms.Label labelProblem;
         private System.Windows.Forms.TextBox textBoxProb;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TextBox textBoxEpsGrad;
+        private System.Windows.Forms.Label label9;
     }
 }
 

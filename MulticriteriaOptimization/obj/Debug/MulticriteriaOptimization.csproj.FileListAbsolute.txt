@@ -10,3 +10,5 @@ C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\D
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.pdb
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.csproj.ResolveComReference.cache
 C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\obj\Debug\MulticriteriaOptimization.ResultsForm.resources
+C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\bin\Debug\MathNet.Numerics.dll
+C:\Users\vjalc\Desktop\MulticriteriaOptimization\MulticriteriaOptimization\bin\Debug\MathNet.Numerics.xml

@@ -45,7 +45,6 @@ namespace MulticriteriaOptimization
             {
                 Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
-                if (xk[0] == Double.NaN) break;
                 PenaltyIterations.Add(xk);
                 penalty = GetPenaltyValue(xk);
                 alphaK += stepPenalty;
@@ -68,55 +67,20 @@ namespace MulticriteriaOptimization
                 Array.Copy(xk, prev, xk.Length);
                 double[] sk = GetDerivativeInXk(xk);
                 double step = BisectionMethod(-100, 100, xk, sk);
-                //double step = 0.001;
                 for (int i = 0; i < xk.Length; i++)
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
                 func = GetFunctionValue(xk) + GetPenaltyValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if (norm < epsilonGrad || k > 500000)
+                if (norm < epsilonGrad || k > 20000)
                 {
                     break;
                 }
-                //if (step > 90)  break;
             }
             return xk;
         }
-
-        public double[] NewtonMethod(double[] x0)
-        {
-            double[] xk = new double[x0.Length];
-            Array.Copy(x0, xk, x0.Length);
-            double func = GetFunctionValue(xk) + GetPenaltyValue(xk);
-            for (int k = 0; ; k++)
-            {
-                gradDescentIterations.Add(xk);
-                double[] prev = new double[x0.Length];
-                Array.Copy(xk, prev, xk.Length);
-                double[] sk = GetDerivativeInXk(xk);
-                double[,] hess = GetHessianMatrix(xk);
-                var  M = Matrix<double>.Build;
-                var V = Vector<double>.Build;
-                Vector<double> grad = V.DenseOfArray(sk);
-                double[,] inverse = M.DenseOfArray(hess).Inverse().ToArray();
-                double[] inverseHessMultiGrad = M.DenseOfArray(hess).Inverse().LeftMultiply(grad).ToArray();
-                double step = BisectionMethodForNewton(-1000, 1000, xk, inverseHessMultiGrad);
-                for (int i = 0; i < xk.Length; i++)
-                {
-                    xk[i] = xk[i] - step * inverseHessMultiGrad[i];
-                }
-                func = GetFunctionValue(xk) + GetPenaltyValue(xk); 
-                double norm = VectorNorm(SubstractVectors(prev, xk));
-                if (norm <= 0.1)
-                {
-                    break;
-                }
-                if (xk[0] == Double.NaN) break;
-            }
-            return xk;
-        }
-
+        
         public double VectorNorm(double[] x)
         {
             double res = 0;
@@ -166,37 +130,7 @@ namespace MulticriteriaOptimization
             } while ((bk - ak) >= epsilon);
             return (ak + bk) / 2; 
         }
-
-        public double BisectionMethodForNewton(double a0, double b0, double[] xk, double[] inverseHessMultiGrad)
-        {
-            double lk, mk;
-            double epsilon = 0.0001;
-            double delta = 0.5 * epsilon;
-            double ak = a0, bk = b0;
-
-            double[] x1 = new double[xk.Length];
-            double[] x2 = new double[xk.Length];
-            do
-            {
-                lk = (ak + bk - delta) / 2;
-                mk = (ak + bk + delta) / 2;
-                for (int i = 0; i < x1.Length; i++)
-                {
-                    x1[i] = xk[i] - lk * inverseHessMultiGrad[i];
-                    x2[i] = xk[i] - mk * inverseHessMultiGrad[i];
-                }
-                if (GetFunctionValue(x1) + GetPenaltyValue(x1) <= GetFunctionValue(x2) + GetPenaltyValue(x2))
-                {
-                    bk = mk;
-                }
-                else
-                {
-                    ak = lk;
-                }
-            } while ((bk - ak) >= epsilon);
-            return (ak + bk) / 2;
-        }
-
+        
         public double GetFunctionValue(double[] x)
         {
             double sum = 0;
@@ -312,51 +246,7 @@ namespace MulticriteriaOptimization
             }
             return contains;
         }
-
-        private double[,] GetHessianMatrix(double[] x)
-        {
-            double[,] res = new double[Prob.CountVariables, Prob.CountVariables];
-            for(int k = 0; k < Prob.CountVariables; k++)
-            {
-                for(int m = 0; m < Prob.CountVariables; m++ )
-                {
-                    for (int i = 0; i < Prob.CriteriaCoefficients.GetLength(0); i++)
-                    {
-                        res[k, m] += 2 * Prob.CriteriaCoefficients[i, k] * Prob.CriteriaCoefficients[i, m];
-                    }
-                }
-            }
-            double[] sum2 = new double[Prob.ConstraintCoefficients.GetLength(0)];
-            for (int i = 0; i < Prob.ConstraintCoefficients.GetLength(0); i++)
-            {
-                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
-                {
-                    sum2[i] += Prob.ConstraintCoefficients[i, j] * x[j];
-                }
-                sum2[i] -= Prob.Constants[i];
-                if (Prob.ConstraintSigns[i] == MathSign.GreaterThan)
-                {
-                    sum2[i] *= -1;
-                }
-            }
-            for (int k = 0; k < Prob.CountVariables; k++)
-            {
-                for (int m = 0; m < Prob.CountVariables; m++)
-                {
-                    for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(0); j++)
-                    {
-                        if ((Prob.ConstraintSigns[j] == MathSign.LessThan) && (sum2[j] > 0) ||
-                            (Prob.ConstraintSigns[j] == MathSign.GreaterThan) && (sum2[j] > 0) ||
-                        Prob.ConstraintSigns[j] == MathSign.Equal)
-                        {
-                            res[k, m] += 2 * alphaK * Prob.ConstraintCoefficients[j, k] * Prob.ConstraintCoefficients[j, m];
-                        }
-                    }
-                }
-            }
-            return res;
-        }
-
+        
         public double CountDifferenceForConstraints(double[] x, int constrInd)
         {
             double sum = 0;

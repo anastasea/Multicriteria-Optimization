@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonGenerate = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBoxCountVar = new System.Windows.Forms.TextBox();
             this.textBoxCountConstraint = new System.Windows.Forms.TextBox();
@@ -46,17 +47,18 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textBoxStep = new System.Windows.Forms.TextBox();
-            this.buttonComputePenalty = new System.Windows.Forms.Button();
             this.textBoxAlpha = new System.Windows.Forms.TextBox();
             this.textBoxEps = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.buttonComputePenalty = new System.Windows.Forms.Button();
             this.labelOptF = new System.Windows.Forms.Label();
             this.labelProblem = new System.Windows.Forms.Label();
             this.textBoxProb = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.textBoxEpsGrad = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.buttonSaveProb = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -65,6 +67,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.buttonGenerate);
             this.groupBox1.Controls.Add(this.pictureBox1);
             this.groupBox1.Controls.Add(this.textBoxCountVar);
             this.groupBox1.Controls.Add(this.textBoxCountConstraint);
@@ -80,6 +83,16 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Постановка задачи";
+            // 
+            // buttonGenerate
+            // 
+            this.buttonGenerate.Location = new System.Drawing.Point(146, 149);
+            this.buttonGenerate.Name = "buttonGenerate";
+            this.buttonGenerate.Size = new System.Drawing.Size(97, 23);
+            this.buttonGenerate.TabIndex = 9;
+            this.buttonGenerate.Text = "Сгенерировать";
+            this.buttonGenerate.UseVisualStyleBackColor = true;
+            this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
             // 
             // pictureBox1
             // 
@@ -207,32 +220,21 @@
             // 
             this.textBoxStep.Location = new System.Drawing.Point(100, 86);
             this.textBoxStep.Name = "textBoxStep";
-            this.textBoxStep.Size = new System.Drawing.Size(42, 20);
+            this.textBoxStep.Size = new System.Drawing.Size(82, 20);
             this.textBoxStep.TabIndex = 10;
-            // 
-            // buttonComputePenalty
-            // 
-            this.buttonComputePenalty.Location = new System.Drawing.Point(12, 431);
-            this.buttonComputePenalty.Name = "buttonComputePenalty";
-            this.buttonComputePenalty.Size = new System.Drawing.Size(75, 23);
-            this.buttonComputePenalty.TabIndex = 9;
-            this.buttonComputePenalty.Text = "Рассчитать";
-            this.buttonComputePenalty.UseVisualStyleBackColor = true;
-            this.buttonComputePenalty.Visible = false;
-            this.buttonComputePenalty.Click += new System.EventHandler(this.buttonComputePenalty_Click);
             // 
             // textBoxAlpha
             // 
             this.textBoxAlpha.Location = new System.Drawing.Point(100, 60);
             this.textBoxAlpha.Name = "textBoxAlpha";
-            this.textBoxAlpha.Size = new System.Drawing.Size(42, 20);
+            this.textBoxAlpha.Size = new System.Drawing.Size(82, 20);
             this.textBoxAlpha.TabIndex = 8;
             // 
             // textBoxEps
             // 
             this.textBoxEps.Location = new System.Drawing.Point(100, 34);
             this.textBoxEps.Name = "textBoxEps";
-            this.textBoxEps.Size = new System.Drawing.Size(42, 20);
+            this.textBoxEps.Size = new System.Drawing.Size(82, 20);
             this.textBoxEps.TabIndex = 6;
             // 
             // label7
@@ -252,6 +254,17 @@
             this.label5.Size = new System.Drawing.Size(84, 13);
             this.label5.TabIndex = 2;
             this.label5.Text = "Погрешность e";
+            // 
+            // buttonComputePenalty
+            // 
+            this.buttonComputePenalty.Location = new System.Drawing.Point(12, 431);
+            this.buttonComputePenalty.Name = "buttonComputePenalty";
+            this.buttonComputePenalty.Size = new System.Drawing.Size(75, 23);
+            this.buttonComputePenalty.TabIndex = 9;
+            this.buttonComputePenalty.Text = "Рассчитать";
+            this.buttonComputePenalty.UseVisualStyleBackColor = true;
+            this.buttonComputePenalty.Visible = false;
+            this.buttonComputePenalty.Click += new System.EventHandler(this.buttonComputePenalty_Click);
             // 
             // labelOptF
             // 
@@ -297,7 +310,7 @@
             // 
             this.textBoxEpsGrad.Location = new System.Drawing.Point(100, 34);
             this.textBoxEpsGrad.Name = "textBoxEpsGrad";
-            this.textBoxEpsGrad.Size = new System.Drawing.Size(42, 20);
+            this.textBoxEpsGrad.Size = new System.Drawing.Size(82, 20);
             this.textBoxEpsGrad.TabIndex = 6;
             // 
             // label9
@@ -309,11 +322,23 @@
             this.label9.TabIndex = 2;
             this.label9.Text = "Погрешность e";
             // 
+            // buttonSaveProb
+            // 
+            this.buttonSaveProb.Location = new System.Drawing.Point(751, 437);
+            this.buttonSaveProb.Name = "buttonSaveProb";
+            this.buttonSaveProb.Size = new System.Drawing.Size(115, 23);
+            this.buttonSaveProb.TabIndex = 11;
+            this.buttonSaveProb.Text = "Сохранить задачу";
+            this.buttonSaveProb.UseVisualStyleBackColor = true;
+            this.buttonSaveProb.Visible = false;
+            this.buttonSaveProb.Click += new System.EventHandler(this.buttonSaveProb_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 518);
+            this.Controls.Add(this.buttonSaveProb);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.textBoxProb);
             this.Controls.Add(this.labelProblem);
@@ -367,6 +392,8 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox textBoxEpsGrad;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button buttonGenerate;
+        private System.Windows.Forms.Button buttonSaveProb;
     }
 }
 

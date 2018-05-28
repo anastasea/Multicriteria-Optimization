@@ -31,7 +31,7 @@ namespace MulticriteriaOptimization
             textBoxCountConstraint.Text = "5";
             textBoxCountCriteria.Text = "2";
             textBoxCountVar.Text = "4";
-            textBoxAlpha.Text = "0,1";
+            textBoxAlpha.Text = "100";
             textBoxEps.Text = "0,01";
             textBoxEpsGrad.Text = "0,01";
             textBoxStep.Text = "10";
@@ -49,14 +49,15 @@ namespace MulticriteriaOptimization
             countCrit = Convert.ToInt32(textBoxCountCriteria.Text);
             countVar = Convert.ToInt32(textBoxCountVar.Text);
             countConstr = Convert.ToInt32(textBoxCountConstraint.Text);
-            createUIProblem(countCrit, countVar, countConstr);
+            createUIProblem(countCrit, countVar, countConstr, false);
             buttonComputeF.Visible = true;
+            buttonSaveProb.Visible = true;
             labelOptF.Visible = false;
             labelProblem.Visible = false;
             textBoxProb.Visible = false;
         }
 
-        private void createUIProblem(int countCrit, int countVar, int countConstr)
+        private void createUIProblem(int countCrit, int countVar, int countConstr, bool generate)
         {
             Label criteriaLabel = new Label();
             criteriaLabel.Location = new Point(0, 0);
@@ -69,7 +70,7 @@ namespace MulticriteriaOptimization
             criteriaTable.Width = 60 * countVar;
             criteriaTable.RowHeadersVisible = false;
             criteriaTable.Location = new Point(criteriaLabel.Location.X + 60, groupBox1.Location.Y + 5);
-
+            Random rand = new Random();
             for (int i = 0; i < countVar; i++)
             {
                 DataGridViewTextBoxColumn col = new DataGridViewTextBoxColumn();
@@ -90,9 +91,12 @@ namespace MulticriteriaOptimization
                 {
                     min.SelectedIndex = (prob.Minimize[i] == true) ? 0 : 1;
                 }
+                else if (generate == true)
+                {
+                    min.SelectedIndex = (rand.NextDouble() >= 0.5) ? 0 : 1;
+                }
                 else
                 {
-
                     min.SelectedIndex = 0;
                 }
                 min.Location = new Point(criteriaLabel.Location.X, criteriaLabel.Location.Y + distance);
@@ -112,6 +116,10 @@ namespace MulticriteriaOptimization
                     if(prob != null)
                     {
                         criteriaTable[j, i].Value = prob.CriteriaCoefficients[i, j];
+                    }
+                    else if (generate == true)
+                    {
+                        criteriaTable[j, i].Value = Math.Round(rand.NextDouble() * 100,1);
                     }
                     else
                     {
@@ -153,6 +161,10 @@ namespace MulticriteriaOptimization
                     {
                         coeffTable[j, i].Value = prob.ConstraintCoefficients[i, j];
                     }
+                    else if (generate == true)
+                    {
+                        coeffTable[j, i].Value = Math.Round(rand.NextDouble() * 100,1);
+                    }
                     else
                     {
                         coeffTable[j, i].Value = 0;
@@ -180,6 +192,21 @@ namespace MulticriteriaOptimization
                             lessThan.SelectedIndex = 1; break;
                         case MathSign.Equal:
                             lessThan.SelectedIndex = 2; break;
+                    }
+                }
+                else if (generate == true)
+                {
+                    double r = rand.NextDouble();
+                    if (r <= 0.7)
+                    {
+                        lessThan.SelectedIndex = 0;
+                    }
+                    else if (r > 0.7 && r < 0.99)
+                    {
+                        lessThan.SelectedIndex = 1;
+                    }
+                    else if(r >= 0.99) {
+                        lessThan.SelectedIndex = 2;
                     }
                 }
                 else
@@ -215,6 +242,10 @@ namespace MulticriteriaOptimization
                 if (prob != null)
                 {
                     constTable[0, i].Value = prob.Constants[i];
+                }
+                else if (generate == true)
+                {
+                    constTable[0, i].Value = Math.Round(rand.NextDouble() * 12000,1);
                 }
                 else
                 {
@@ -334,14 +365,15 @@ namespace MulticriteriaOptimization
                         try
                         {
                             prob = new MultiCriteriaProblem(minimize, criteriaCoefficients, constraintCoefficients, constants, constraintSigns, NotNonNegativeVarInd);
-                            createUIProblem(countCrit, countVar, countConstr);
+                            createUIProblem(countCrit, countVar, countConstr, false);
                         }
                         catch (Exception exc)
                         {
                             MessageBox.Show(exc.Message);
                         }
                     }
-                buttonComputeF.Visible = true;
+                    buttonComputeF.Visible = true;
+                    buttonSaveProb.Visible = true; 
                 }
                 catch (Exception ex)
                 {
@@ -430,7 +462,7 @@ namespace MulticriteriaOptimization
                     }
                 }
                 textBoxProb.Text += (solutionsF[i] > 0) ? "-" : "+";
-                textBoxProb.Text += Math.Abs(Math.Round(solutionsF[i],4));
+                textBoxProb.Text += Math.Abs(Math.Round(solutionsF[i],1));
                 textBoxProb.Text += ")^2";
                 if(i != prob.CriteriaCoefficients.GetLength(0) - 1)
                 {
@@ -463,6 +495,82 @@ namespace MulticriteriaOptimization
                 res.Show();
             }
             catch(Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
+
+        private void buttonGenerate_Click(object sender, EventArgs e)
+        {
+            panel1.Controls.Clear();
+            prob = null;
+            countCrit = Convert.ToInt32(textBoxCountCriteria.Text);
+            countVar = Convert.ToInt32(textBoxCountVar.Text);
+            countConstr = Convert.ToInt32(textBoxCountConstraint.Text);
+            createUIProblem(countCrit, countVar, countConstr, true);
+            buttonComputeF.Visible = true;
+            buttonSaveProb.Visible = true;
+            labelOptF.Visible = false;
+            labelProblem.Visible = false;
+            textBoxProb.Visible = false;
+        }
+
+        private void buttonSaveProb_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                saveFileDialog1.Filter = "Текстовый документ(.txt)| *.txt";
+                saveFileDialog1.RestoreDirectory = true;
+                saveFileDialog1.FilterIndex = 1;
+
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    string filename = saveFileDialog1.FileName;
+                    string extension = Path.GetExtension(filename);
+                    if (extension == ".txt")
+                    {
+                        using (StreamWriter sw = new StreamWriter(filename))
+                        {
+                            sw.Write(countCrit + " " + countConstr + " " + countVar);
+                            sw.WriteLine();
+                            List<string> comboboxText = new List<string>();
+                            foreach (Control c in panel1.Controls)
+                            {
+                                if (c is ComboBox)
+                                    comboboxText.Add(((ComboBox)c).SelectedItem.ToString());
+                            }
+                            for (int i = 0; i < countCrit; i++)
+                            {
+                                sw.Write((comboboxText[i] == "MIN")?"1 ":"0 ");
+                                for (int j = 0; j < countVar; j++)
+                                {
+                                    sw.Write(Convert.ToDouble(criteriaTable[j, i].Value));
+                                    if (j != countVar - 1) sw.Write(" ");
+                                }
+                                sw.WriteLine();
+                            }
+                            int k = countCrit;
+                            for (int i = 0; i < countConstr; i++)
+                            {
+                                for (int j = 0; j < countVar; j++)
+                                {
+                                    sw.Write(Convert.ToDouble(coeffTable[j, i].Value) + " ");
+                                }
+                                sw.Write(comboboxText[k] + " ");
+                                k++;
+                                sw.Write(Convert.ToDouble(constTable[0, i].Value));
+                                sw.WriteLine();
+                            }
+
+                        }
+                    }
+                    else
+                        throw new Exception("Неверное расширение файла!");
+                }
+                MessageBox.Show("Задача успешно сохранена!");
+            }
+            catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
             }

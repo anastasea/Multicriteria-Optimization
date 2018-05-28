@@ -229,10 +229,11 @@ namespace MulticriteriaOptimization
             ConvertToStandardForm();
             AddArtificialVariables();
             FindInitialCosts();
+            int prev = -1;
             while (true)
             {
                 int pivotColumn = FindPivotColumn();
-                if (pivotColumn == -1)
+                if (pivotColumn == -1 || pivotColumn == prev)
                 {
                     if (Math.Round(SimplexTable[SimplexTable.GetLength(0) - 1, 0], 10) != 0)
                     {
@@ -257,6 +258,7 @@ namespace MulticriteriaOptimization
                     }
                     Basis[pivotRow - 1] = pivotColumn;
                     FindNewSimplexTable(pivotRow, pivotColumn);
+                    prev = pivotColumn;
                 }
             }
         }

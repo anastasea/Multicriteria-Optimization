@@ -15,13 +15,14 @@ namespace MulticriteriaOptimization
     public partial class ResultsForm : Form
     {
         PenaltyMethod penalty;
-        double[] xOpt; 
+        double[] xOpt;
+        Stopwatch sw;
 
         public ResultsForm(PenaltyMethod pm)
         {
             InitializeComponent();
             this.penalty = pm;
-            Stopwatch sw = Stopwatch.StartNew();
+            sw = Stopwatch.StartNew();
             xOpt = pm.Calculate();
             sw.Stop();
             WriteResults();
@@ -35,22 +36,27 @@ namespace MulticriteriaOptimization
                 textBox1.Text += "Итерация " + (i + 1) + ": ";
                 for (int j = 0; j < penalty.PenaltyIterations[i].Length; j++)
                 {
-                    textBox1.Text += Math.Round(penalty.PenaltyIterations[i][j], 4) + "   ";
+                    textBox1.Text += penalty.PenaltyIterations[i][j] + "   ";
                 }
                 // textBox1.Text += "f = " + Math.Round(Math.Sqrt(penalty.GetFunctionValue(penalty.PenaltyIterations[i])), 4);
                 textBox1.Text += "\r\n";
             }
             textBox1.Text += "Расстояние до идеальной точки: " + (Math.Sqrt(penalty.GetFunctionValue(xOpt)))+ "\r\n";
+            textBox1.Text += "Время работы программы: " + sw.Elapsed.ToString(@"m\:ss\.ff") + "\r\n"; ;
+            double totalSum = 0;
             for (int i = 0; i < penalty.Prob.CountConstraint; i++)
             {
-                double p = penalty.CountDifferenceForConstraints(xOpt,i);
-                textBox1.Text += (p!=0)? "Ограничение " + (i+1) + " нарушено на " + p + " единиц. \r\n":"Ограничение "+(i+1)+ " не нарушено. \r\n";
+                double penForConstr = penalty.CountDifferenceForConstraints(xOpt,i);
+                totalSum += penForConstr;
+                textBox1.Text += (penForConstr!=0)? "Ограничение " + (i+1) + " нарушено на " + penForConstr + " единиц. \r\n":"Ограничение "+(i+1)+ " не нарушено. \r\n";
             }
             for (int i = 0; i < penalty.Prob.CountVariables; i++)
             {
-                double p = penalty.CountDifferenceForNonNegativityConstraints(xOpt, i);
-                textBox1.Text += (p != 0) ? "Ограничение на неотрицательгость X" + (i + 1) + " нарушено на " + p + " единиц. \r\n" : "Ограничение на неотрицательность X" + (i + 1) + " не нарушено. \r\n";
+                double penForNonNeg = penalty.CountDifferenceForNonNegativityConstraints(xOpt, i);
+                totalSum += penForNonNeg;
+                textBox1.Text += (penForNonNeg != 0) ? "Ограничение на неотрицательгость X" + (i + 1) + " нарушено на " + penForNonNeg + " единиц. \r\n" : "Ограничение на неотрицательность X" + (i + 1) + " не нарушено. \r\n";
             }
+            textBox1.Text += "Штраф (сумма невязок): " + totalSum;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -76,7 +82,7 @@ namespace MulticriteriaOptimization
                     else
                         throw new Exception("Неверное расширение файла!");
                 }
-                MessageBox.Show("Решение успешно сохранено!");
+                //MessageBox.Show("Решение успешно сохранено!");
             }
             catch (Exception exc)
             {

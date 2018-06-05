@@ -119,7 +119,7 @@ namespace MulticriteriaOptimization
                     }
                     else if (generate == true)
                     {
-                        criteriaTable[j, i].Value = Math.Round(rand.NextDouble() * 100,1);
+                        criteriaTable[j, i].Value = Math.Round(rand.NextDouble() * 10,1);
                     }
                     else
                     {
@@ -163,7 +163,7 @@ namespace MulticriteriaOptimization
                     }
                     else if (generate == true)
                     {
-                        coeffTable[j, i].Value = Math.Round(rand.NextDouble() * 100,1);
+                        coeffTable[j, i].Value = Math.Round(rand.NextDouble() * 20,1);
                     }
                     else
                     {
@@ -245,7 +245,7 @@ namespace MulticriteriaOptimization
                 }
                 else if (generate == true)
                 {
-                    constTable[0, i].Value = Math.Round(rand.NextDouble() * 12000,1);
+                    constTable[0, i].Value = Math.Round(rand.NextDouble() * 1000,1);
                 }
                 else
                 {
@@ -568,7 +568,7 @@ namespace MulticriteriaOptimization
                     else
                         throw new Exception("Неверное расширение файла!");
                 }
-                MessageBox.Show("Задача успешно сохранена!");
+                //MessageBox.Show("Задача успешно сохранена!");
             }
             catch (Exception exc)
             {

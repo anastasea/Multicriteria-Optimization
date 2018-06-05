@@ -21,12 +21,12 @@ namespace MulticriteriaOptimization
 
         public PenaltyMethod(MultiCriteriaProblem prob, double[] optF, double epsilon, double epsilonGrad, double alphaK, double step)
         {
-            this.Prob = prob;
+            Prob = prob;
             this.optF = optF;
             this.epsilon = epsilon;
             this.epsilonGrad = epsilonGrad;
             this.alphaK = alphaK;
-            this.stepPenalty = step;
+            stepPenalty = step;
             PenaltyIterations = new List<double[]>();
             gradDescentIterations = new List<double[]>();
             GradCoefficients = new double[prob.CriteriaCoefficients.GetLength(0), prob.CriteriaCoefficients.GetLength(1)];
@@ -40,13 +40,12 @@ namespace MulticriteriaOptimization
                 xk[i] = -1;
             }
             double[] prev = new double[xk.Length];
-            double norm; double penalty;
+            double norm; 
             do
             {
                 Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
                 PenaltyIterations.Add(xk);
-                penalty = GetPenaltyValue(xk);
                 alphaK += stepPenalty;
                 norm = VectorNorm(SubstractVectors(prev, xk));
             }
@@ -66,14 +65,15 @@ namespace MulticriteriaOptimization
                 double[] prev = new double[x0.Length];
                 Array.Copy(xk, prev, xk.Length);
                 double[] sk = GetDerivativeInXk(xk);
-                double step = BisectionMethod(-100, 100, xk, sk);
+                double[] interval = FindIntervalForBisectionMethod(xk, sk);
+                double step = BisectionMethod(interval[0], interval[1], xk, sk);
                 for (int i = 0; i < xk.Length; i++)
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
                 func = GetFunctionValue(xk) + GetPenaltyValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if (norm < epsilonGrad || k > 20000)
+                if (norm < epsilonGrad)// || k > 20000)
                 {
                     break;
                 }
@@ -99,6 +99,34 @@ namespace MulticriteriaOptimization
                 res[i] = next[i] - prev[i];
             }
             return res; 
+        }
+
+        public double[] FindIntervalForBisectionMethod(double[] xk, double[] sk)
+        {
+            double[] res = { 0, 0 };
+            double step = 0.5;
+            double[] x = new double[xk.Length];
+            Array.Copy(xk, x, xk.Length);
+            double funcPrev = GetFunctionValue(x) + GetPenaltyValue(x);
+            while (true)
+            {
+                for (int i = 0; i < x.Length; i++)
+                {
+                    x[i] = xk[i] - step * sk[i];
+                }
+                double funcX = GetFunctionValue(x) + GetPenaltyValue(x);
+                if (funcX >= funcPrev)
+                {
+                    res[0] = step-1;
+                    res[1] = step;
+                    return res;
+                }
+                else
+                {
+                    funcPrev = funcX;
+                    step += 0.5;
+                }
+            }
         }
 
         public double BisectionMethod(double a0, double b0, double[] xk, double[] grad)

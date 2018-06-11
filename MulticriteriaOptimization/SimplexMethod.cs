@@ -240,7 +240,22 @@ namespace MulticriteriaOptimization
                         return double.NaN;
                     }
                     else
-                    {                        
+                    {
+                        double[] solution = new double[SimplexTable.GetLength(1) - 1];
+                        for (int i = 0; i < Basis.Length; i++)
+                        {
+                            if (Basis[i] - 1 < Prob.CountVariables)
+                            {
+                                solution[Basis[i] - 1] = SimplexTable[i + 1, 0];
+                            }
+                        }
+                        if (additionalVars.Count != 0)
+                        {
+                            foreach (KeyValuePair<int, int> pair in additionalVars)
+                            {
+                                solution[pair.Key] -= solution[pair.Value];
+                            }
+                        }
                         double optObjectiveValue = SimplexTable[SimplexTable.GetLength(0) - 2, 0];
                         if (Prob.Minimize[CriteriaInd] == true)
                         {

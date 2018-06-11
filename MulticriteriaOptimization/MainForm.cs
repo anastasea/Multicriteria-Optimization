@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 
 namespace MulticriteriaOptimization
 {
@@ -163,7 +157,7 @@ namespace MulticriteriaOptimization
                     }
                     else if (generate == true)
                     {
-                        coeffTable[j, i].Value = Math.Round(rand.NextDouble() * 20,1);
+                        coeffTable[j, i].Value = Math.Round(rand.NextDouble() * 5,1);
                     }
                     else
                     {
@@ -245,7 +239,7 @@ namespace MulticriteriaOptimization
                 }
                 else if (generate == true)
                 {
-                    constTable[0, i].Value = Math.Round(rand.NextDouble() * 1000,1);
+                    constTable[0, i].Value = Math.Round(rand.NextDouble() * 150);
                 }
                 else
                 {
@@ -480,13 +474,15 @@ namespace MulticriteriaOptimization
             {
                 double eps, epsGrad, a, step;
                 if (!Double.TryParse(textBoxEps.Text, out eps))
-                    throw new Exception();
+                    throw new Exception("Неверный формат погрешности для метода штрафных функций");
                 if (!Double.TryParse(textBoxEpsGrad.Text, out epsGrad))
-                    throw new Exception();
+                    throw new Exception("Неверный формат погрешности для метода наискорейшего спуска");
                 if (!Double.TryParse(textBoxAlpha.Text, out a))
-                    throw new Exception();
+                    throw new Exception("Неверный формат штрафного коэффициента");
                 if (!Double.TryParse(textBoxStep.Text, out step))
-                    throw new Exception();
+                    throw new Exception("Неверный формат шага");
+                if (Double.IsNaN(solutionsF[0]))
+                    throw new Exception("Решаются только задачи с совместной системой граничений и огранниченными сверху/снизу функциями");
                 PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, epsGrad, a, step);
                 //Stopwatch sw = Stopwatch.StartNew();
                 //double[] x = pm.Calculate();
@@ -556,6 +552,72 @@ namespace MulticriteriaOptimization
                                 for (int j = 0; j < countVar; j++)
                                 {
                                     sw.Write(Convert.ToDouble(coeffTable[j, i].Value) + " ");
+                                }
+                                sw.Write(comboboxText[k] + " ");
+                                k++;
+                                sw.Write(Convert.ToDouble(constTable[0, i].Value));
+                                sw.WriteLine();
+                            }
+
+                        }
+                    }
+                    else
+                        throw new Exception("Неверное расширение файла!");
+                }
+                //MessageBox.Show("Задача успешно сохранена!");
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                saveFileDialog1.Filter = "Текстовый документ(.txt)| *.txt";
+                saveFileDialog1.RestoreDirectory = true;
+                saveFileDialog1.FilterIndex = 1;
+
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    string filename = saveFileDialog1.FileName;
+                    string extension = Path.GetExtension(filename);
+                    if (extension == ".txt")
+                    {
+                        using (StreamWriter sw = new StreamWriter(filename))
+                        {
+                            List<string> comboboxText = new List<string>();
+                            foreach (Control c in panel1.Controls)
+                            {
+                                if (c is ComboBox)
+                                    comboboxText.Add(((ComboBox)c).SelectedItem.ToString());
+                            }
+                            for (int i = 0; i < countCrit; i++)
+                            {
+                                sw.Write((comboboxText[i] == "MIN") ? "min " : "max ");
+                                for (int j = 0; j < countVar; j++)
+                                {
+                                    if(Convert.ToDouble(criteriaTable[j, i].Value) != 0)
+                                    {
+                                        sw.Write(Convert.ToDouble(criteriaTable[j, i].Value) + "x" + (j + 1) + " ");
+                                        if (j != countVar - 1) sw.Write("+ ");
+                                    }
+                                }
+                                sw.WriteLine();
+                            }
+                            int k = countCrit;
+                            for (int i = 0; i < countConstr; i++)
+                            {
+                                for (int j = 0; j < countVar; j++)
+                                {
+                                    if (Convert.ToDouble(coeffTable[j, i].Value) != 0)
+                                    {
+                                        sw.Write(Convert.ToDouble(coeffTable[j, i].Value) + "x" + (j + 1) + " ");
+                                    }
+                                    if (j != countVar - 1) sw.Write("+ ");
                                 }
                                 sw.Write(comboboxText[k] + " ");
                                 k++;

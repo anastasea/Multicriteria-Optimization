@@ -17,6 +17,7 @@ namespace MulticriteriaOptimization
         public MathSign[] ConstraintSigns { get; set; }
         public int[] NotNonNegativeVarInd { get; set; }
 
+        public int CountCriteria { get; set; }
         public int CountConstraint { get; set; }
         public int CountVariables { get; set; }
 
@@ -25,8 +26,9 @@ namespace MulticriteriaOptimization
             Minimize = minimize;
             ConstraintCoefficients = constraintCoefficients;
             CriteriaCoefficients = criteriaCoefficients;
+            CountCriteria = criteriaCoefficients.GetLength(0);
             CountConstraint = ConstraintCoefficients.GetLength(0);
-            CountVariables = ConstraintCoefficients.GetLength(1);
+            CountVariables = ConstraintCoefficients.GetLength(1);            
             Constants = constants;
             ConstraintSigns = constraintSigns;
             NotNonNegativeVarInd = notNonNegativeVariables;

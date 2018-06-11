@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace MulticriteriaOptimization
 {
@@ -38,11 +32,36 @@ namespace MulticriteriaOptimization
                 {
                     textBox1.Text += penalty.PenaltyIterations[i][j] + "   ";
                 }
-                // textBox1.Text += "f = " + Math.Round(Math.Sqrt(penalty.GetFunctionValue(penalty.PenaltyIterations[i])), 4);
                 textBox1.Text += "\r\n";
             }
-            textBox1.Text += "Расстояние до идеальной точки: " + (Math.Sqrt(penalty.GetFunctionValue(xOpt)))+ "\r\n";
-            textBox1.Text += "Время работы программы: " + sw.Elapsed.ToString(@"m\:ss\.ff") + "\r\n"; ;
+            penalty.AlphaK = 1;
+            textBox1.Text += "Расстояние до идеальной точки f*: " + (Math.Sqrt(penalty.GetFunctionValue(xOpt)))+ "\r\n";
+            textBox1.Text += "f* = (";
+            for (int i = 0; i < penalty.Prob.CountCriteria; i++)
+            {
+                textBox1.Text += penalty.IdealF[i];
+                if (i != penalty.Prob.CountCriteria - 1)
+                {
+                    textBox1.Text += "; ";
+                }
+            }
+            textBox1.Text += ") \r\n";
+            double[] fOpt = new double[penalty.Prob.CriteriaCoefficients.GetLength(0)];
+            textBox1.Text += "f = (";
+            for (int i = 0; i < penalty.Prob.CountCriteria; i++)
+            {
+                double temp = 0;
+                for (int j = 0; j < penalty.Prob.CountVariables; j++)
+                {
+                    temp += penalty.Prob.CriteriaCoefficients[i, j] * xOpt[j];
+                }
+                textBox1.Text += temp;
+                if (i != penalty.Prob.CountCriteria-1)
+                {
+                    textBox1.Text += "; ";
+                }
+            }
+            textBox1.Text += ") \r\n";
             double totalSum = 0;
             for (int i = 0; i < penalty.Prob.CountConstraint; i++)
             {
@@ -54,9 +73,13 @@ namespace MulticriteriaOptimization
             {
                 double penForNonNeg = penalty.CountDifferenceForNonNegativityConstraints(xOpt, i);
                 totalSum += penForNonNeg;
-                textBox1.Text += (penForNonNeg != 0) ? "Ограничение на неотрицательгость X" + (i + 1) + " нарушено на " + penForNonNeg + " единиц. \r\n" : "Ограничение на неотрицательность X" + (i + 1) + " не нарушено. \r\n";
+                if (!penalty.ContainsValue(penalty.Prob.NotNonNegativeVarInd, i))
+                {
+                    textBox1.Text += (penForNonNeg != 0) ? "Ограничение на неотрицательность X" + (i + 1) + " нарушено на " + penForNonNeg + " единиц. \r\n" : "Ограничение на неотрицательность X" + (i + 1) + " не нарушено. \r\n";
+                }
             }
-            textBox1.Text += "Штраф (сумма невязок): " + totalSum;
+            textBox1.Text += "Штраф (сумма невязок): " + totalSum + "\r\n";
+            textBox1.Text += "Время работы программы: " + sw.Elapsed.ToString(@"m\:ss\.fffff") + "\r\n";
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -64,7 +87,7 @@ namespace MulticriteriaOptimization
             try
             {
                 SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-                saveFileDialog1.Filter = "Текстовый документ(.txt)| *.txt";
+                saveFileDialog1.Filter = "Текстовый документ(.txt)| *.txt| Excel - файл(.xlsx) | *.xlsx";
                 saveFileDialog1.RestoreDirectory = true;
                 saveFileDialog1.FilterIndex = 1;
 
@@ -78,6 +101,26 @@ namespace MulticriteriaOptimization
                         {
                             sw.Write(textBox1.Text);
                         }
+                    }
+                    else if (extension == ".xlsx")
+                    {
+                        Excel.Application xlApp = new Excel.Application();
+                        xlApp.Visible = false;
+                        Excel.Workbook xlWorkbook = xlApp.Workbooks.Add(Excel.XlWBATemplate.xlWBATWorksheet);
+                        Excel.Worksheet xlWorksheet = (Excel.Worksheet)xlWorkbook.Worksheets[1];
+
+                        for (int i = 0; i < penalty.PenaltyIterations.Count; i++)
+                        {
+                            for (int j = 0; j < penalty.PenaltyIterations[i].Length; j++)
+                            {
+                                xlWorksheet.Cells[i + 1, j + 1] = penalty.PenaltyIterations[i][j];
+                            }
+                        }
+                        xlWorkbook.SaveAs(filename);
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        xlWorkbook.Close();
+                        xlApp.Quit();
                     }
                     else
                         throw new Exception("Неверное расширение файла!");

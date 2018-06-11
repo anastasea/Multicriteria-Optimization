@@ -59,6 +59,7 @@
             this.textBoxEpsGrad = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.buttonSaveProb = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -210,7 +211,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(61, 86);
+            this.label4.Location = new System.Drawing.Point(110, 83);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(27, 13);
             this.label4.TabIndex = 11;
@@ -218,21 +219,21 @@
             // 
             // textBoxStep
             // 
-            this.textBoxStep.Location = new System.Drawing.Point(100, 86);
+            this.textBoxStep.Location = new System.Drawing.Point(137, 83);
             this.textBoxStep.Name = "textBoxStep";
             this.textBoxStep.Size = new System.Drawing.Size(82, 20);
             this.textBoxStep.TabIndex = 10;
             // 
             // textBoxAlpha
             // 
-            this.textBoxAlpha.Location = new System.Drawing.Point(100, 60);
+            this.textBoxAlpha.Location = new System.Drawing.Point(137, 60);
             this.textBoxAlpha.Name = "textBoxAlpha";
             this.textBoxAlpha.Size = new System.Drawing.Size(82, 20);
             this.textBoxAlpha.TabIndex = 8;
             // 
             // textBoxEps
             // 
-            this.textBoxEps.Location = new System.Drawing.Point(100, 34);
+            this.textBoxEps.Location = new System.Drawing.Point(137, 34);
             this.textBoxEps.Name = "textBoxEps";
             this.textBoxEps.Size = new System.Drawing.Size(82, 20);
             this.textBoxEps.TabIndex = 6;
@@ -240,16 +241,16 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(0, 60);
+            this.label7.Location = new System.Drawing.Point(6, 60);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(91, 13);
+            this.label7.Size = new System.Drawing.Size(131, 13);
             this.label7.TabIndex = 4;
-            this.label7.Text = "Начальное aplha";
+            this.label7.Text = "Штрафной коэффициент";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(10, 34);
+            this.label5.Location = new System.Drawing.Point(53, 34);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(84, 13);
             this.label5.TabIndex = 2;
@@ -308,7 +309,7 @@
             // 
             // textBoxEpsGrad
             // 
-            this.textBoxEpsGrad.Location = new System.Drawing.Point(100, 34);
+            this.textBoxEpsGrad.Location = new System.Drawing.Point(137, 34);
             this.textBoxEpsGrad.Name = "textBoxEpsGrad";
             this.textBoxEpsGrad.Size = new System.Drawing.Size(82, 20);
             this.textBoxEpsGrad.TabIndex = 6;
@@ -316,7 +317,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(10, 34);
+            this.label9.Location = new System.Drawing.Point(47, 34);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(84, 13);
             this.label9.TabIndex = 2;
@@ -333,11 +334,22 @@
             this.buttonSaveProb.Visible = false;
             this.buttonSaveProb.Click += new System.EventHandler(this.buttonSaveProb_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(690, 437);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 12;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 518);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.buttonSaveProb);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.textBoxProb);
@@ -394,6 +406,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button buttonGenerate;
         private System.Windows.Forms.Button buttonSaveProb;
+        private System.Windows.Forms.Button button1;
     }
 }
 

@@ -1,35 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace MulticriteriaOptimization
 {
     public class PenaltyMethod
     {
         public MultiCriteriaProblem Prob { get; set; }
-        double[] optF;
-        double alphaK;
+        public double[] IdealF { get; }
+        public double AlphaK { get; set; }
         double stepPenalty;
-        double[,] GradCoefficients;
         double epsilon;
         double epsilonGrad;
         List<double[]> gradDescentIterations;
         public List<double[]> PenaltyIterations { get; set; }
 
-        public PenaltyMethod(MultiCriteriaProblem prob, double[] optF, double epsilon, double epsilonGrad, double alphaK, double step)
+        public PenaltyMethod(MultiCriteriaProblem prob, double[] idealF, double epsilon, double epsilonGrad, double alphaK, double step)
         {
             Prob = prob;
-            this.optF = optF;
+            IdealF = idealF;
             this.epsilon = epsilon;
             this.epsilonGrad = epsilonGrad;
-            this.alphaK = alphaK;
+            AlphaK = alphaK;
             stepPenalty = step;
             PenaltyIterations = new List<double[]>();
             gradDescentIterations = new List<double[]>();
-            GradCoefficients = new double[prob.CriteriaCoefficients.GetLength(0), prob.CriteriaCoefficients.GetLength(1)];
         }
 
         public double[] Calculate()
@@ -37,7 +31,7 @@ namespace MulticriteriaOptimization
             double[] xk = new double[Prob.CountVariables];
             for (int i = 0; i < xk.Length; i++)
             {
-                xk[i] = -1;
+                xk[i] = 0;
             }
             double[] prev = new double[xk.Length];
             double norm; 
@@ -46,7 +40,7 @@ namespace MulticriteriaOptimization
                 Array.Copy(xk, prev, xk.Length);
                 xk = DeepGradientDescent(xk);
                 PenaltyIterations.Add(xk);
-                alphaK += stepPenalty;
+                AlphaK += stepPenalty;
                 norm = VectorNorm(SubstractVectors(prev, xk));
             }
             while (norm > epsilon);
@@ -58,7 +52,6 @@ namespace MulticriteriaOptimization
             gradDescentIterations.Clear();
             double[] xk = new double[x0.Length];
             Array.Copy(x0, xk, x0.Length);
-            double func = GetFunctionValue(xk) + GetPenaltyValue(xk); 
             for (int k = 0; ; k++)
             {
                 gradDescentIterations.Add(xk);
@@ -71,9 +64,8 @@ namespace MulticriteriaOptimization
                 {
                     xk[i] = xk[i] - step * sk[i];
                 }
-                func = GetFunctionValue(xk) + GetPenaltyValue(xk);
                 double norm = VectorNorm(SubstractVectors(prev, xk));
-                if (norm < epsilonGrad)// || k > 20000)
+                if (norm < epsilonGrad)
                 {
                     break;
                 }
@@ -163,14 +155,14 @@ namespace MulticriteriaOptimization
         {
             double sum = 0;
             double temp = 0;
-            for (int i = 0; i < Prob.CriteriaCoefficients.GetLength(0); i++)
+            for (int i = 0; i < Prob.CountCriteria; i++)
             {
                 temp = 0;
-                for (int j = 0; j < Prob.CriteriaCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.CountVariables; j++)
                 {
                     temp += Prob.CriteriaCoefficients[i, j] * x[j];
                 }
-                temp -= optF[i];
+                temp -= IdealF[i];
                 temp *= temp;
                 sum += temp;
             }
@@ -181,27 +173,27 @@ namespace MulticriteriaOptimization
         public double[] GetDerivativeInXk(double[] x)
         {
             double[] sk = new double[x.Length];
-            double[] sum = new double[Prob.CriteriaCoefficients.GetLength(0)];
-            for (int i = 0; i < Prob.CriteriaCoefficients.GetLength(0); i++)
+            double[] sum = new double[Prob.CountCriteria];
+            for (int i = 0; i < Prob.CountCriteria; i++)
             {
-                for (int j = 0; j < Prob.CriteriaCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.CountVariables; j++)
                 {
                     sum[i] += Prob.CriteriaCoefficients[i,j] * x[j];
                 }
-                sum[i] -= optF[i];
+                sum[i] -= IdealF[i];
                 sum[i] *= 2;
             }
             for (int i = 0; i < sk.Length; i++)
             {
-                for (int j = 0; j < Prob.CriteriaCoefficients.GetLength(0); j++)
+                for (int j = 0; j < Prob.CountCriteria; j++)
                 {
                     sk[i] += sum[j] * Prob.CriteriaCoefficients[j, i];
                 }
             }
-            double[] sum2 = new double[Prob.ConstraintCoefficients.GetLength(0)];
-            for (int i = 0; i < Prob.ConstraintCoefficients.GetLength(0); i++)
+            double[] sum2 = new double[Prob.CountConstraint];
+            for (int i = 0; i < Prob.CountConstraint; i++)
             {
-                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.CountVariables; j++)
                 {
                     sum2[i] += Prob.ConstraintCoefficients[i, j] * x[j];
                 }
@@ -209,13 +201,13 @@ namespace MulticriteriaOptimization
             }
             for (int i = 0; i < sk.Length; i++)
             {
-                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(0); j++)
+                for (int j = 0; j < Prob.CountConstraint; j++)
                 {
                     if ((Prob.ConstraintSigns[j] == MathSign.LessThan) && (sum2[j] > 0) ||
                     (Prob.ConstraintSigns[j] == MathSign.GreaterThan) && (sum2[j] < 0) ||
                     Prob.ConstraintSigns[j] == MathSign.Equal)
                     {
-                        sk[i] += 2 * alphaK * Math.Abs(sum2[j] * Prob.ConstraintCoefficients[j, i]);
+                        sk[i] += 2 * AlphaK * Math.Abs(sum2[j] * Prob.ConstraintCoefficients[j, i]);
                     }
                 }
             }
@@ -223,7 +215,7 @@ namespace MulticriteriaOptimization
             {
                 if (!ContainsValue(Prob.NotNonNegativeVarInd, i) && x[i] < 0)
                 {
-                    sk[i] += 2 * alphaK * Math.Abs(x[i]);
+                    sk[i] += 2 * AlphaK * Math.Abs(x[i]);
                 }
             }
             return sk;
@@ -232,10 +224,10 @@ namespace MulticriteriaOptimization
         public double GetPenaltyValue(double[] x)
         {
             double sum = 0;
-            for (int i = 0; i < Prob.ConstraintCoefficients.GetLength(0); i++)
+            for (int i = 0; i < Prob.CountConstraint; i++)
             {
                 double temp = 0;
-                for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
+                for (int j = 0; j < Prob.CountVariables; j++)
                 {
                     temp += Prob.ConstraintCoefficients[i, j] * x[j];
                 }
@@ -245,20 +237,20 @@ namespace MulticriteriaOptimization
                     (Prob.ConstraintSigns[i] == MathSign.GreaterThan) && (temp < 0) ||
                     Prob.ConstraintSigns[i] == MathSign.Equal)
                 {
-                    sum += temp * temp * alphaK;
+                    sum += temp * temp * AlphaK;
                 }
             }
             for(int i = 0; i < Prob.CountVariables; i++)
             {
                 if(!ContainsValue(Prob.NotNonNegativeVarInd,i) && x[i] < 0)
                 {
-                    sum += alphaK * x[i] * x[i];
+                    sum += AlphaK * x[i] * x[i];
                 }
             }
             return sum;
         }
 
-        private bool ContainsValue(int[] arr, int val)
+        public bool ContainsValue(int[] arr, int val)
         {
             bool contains = false;
             if (arr != null)
@@ -279,7 +271,7 @@ namespace MulticriteriaOptimization
         {
             double sum = 0;
             double temp = 0;
-            for (int j = 0; j < Prob.ConstraintCoefficients.GetLength(1); j++)
+            for (int j = 0; j < Prob.CountVariables; j++)
             {
                 temp += Prob.ConstraintCoefficients[constrInd, j] * x[j];
             }

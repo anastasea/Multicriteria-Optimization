@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MulticriteriaOptimization
 {
@@ -60,6 +57,60 @@ namespace MulticriteriaOptimization
                 }
             }
 
+        }
+
+        public Tuple<double, double[]> Calculate()
+        {
+            ConvertToStandardForm();
+            AddArtificialVariables();
+            FindInitialCosts();
+            int prev = -1;
+            while (true)
+            {
+                int pivotColumn = FindPivotColumn();
+                if (pivotColumn == -1 || pivotColumn == prev)
+                {
+                    if (Math.Round(SimplexTable[SimplexTable.GetLength(0) - 1, 0], 10) != 0)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        double[] xOpt = new double[Prob.CountVariables];
+                        for (int i = 0; i < Basis.Length; i++)
+                        {
+                            if (Basis[i] - 1 < Prob.CountVariables)
+                            {
+                                xOpt[Basis[i] - 1] = SimplexTable[i + 1, 0];
+                            }
+                        }
+                        if (additionalVars.Count != 0)
+                        {
+                            foreach (KeyValuePair<int, int> pair in additionalVars)
+                            {
+                                xOpt[pair.Key] -= xOpt[pair.Value];
+                            }
+                        }
+                        double optObjectiveValue = SimplexTable[SimplexTable.GetLength(0) - 2, 0];
+                        if (Prob.Minimize[CriteriaInd] == true)
+                        {
+                            optObjectiveValue *= -1;
+                        }
+                        return new Tuple<double, double[]>(optObjectiveValue,xOpt);
+                    }
+                }
+                else
+                {
+                    int pivotRow = FindPivotRow(pivotColumn);
+                    if (pivotRow == -1)
+                    {
+                        return null;
+                    }
+                    Basis[pivotRow - 1] = pivotColumn;
+                    FindNewSimplexTable(pivotRow, pivotColumn);
+                    prev = pivotColumn;
+                }
+            }
         }
 
         public int CountTotalNewVars()
@@ -220,60 +271,6 @@ namespace MulticriteriaOptimization
                 for (int j = 0; j < SimplexTable.GetLength(1); j++)
                 {
                     SimplexTable[i, j] = oldTable[i, j] - (oldTable[i, pivotColumn] * SimplexTable[pivotRow, j]);
-                }
-            }
-        }
-
-        public double Calculate()
-        {
-            ConvertToStandardForm();
-            AddArtificialVariables();
-            FindInitialCosts();
-            int prev = -1;
-            while (true)
-            {
-                int pivotColumn = FindPivotColumn();
-                if (pivotColumn == -1 || pivotColumn == prev)
-                {
-                    if (Math.Round(SimplexTable[SimplexTable.GetLength(0) - 1, 0], 10) != 0)
-                    {
-                        return double.NaN;
-                    }
-                    else
-                    {
-                        double[] solution = new double[SimplexTable.GetLength(1) - 1];
-                        for (int i = 0; i < Basis.Length; i++)
-                        {
-                            if (Basis[i] - 1 < Prob.CountVariables)
-                            {
-                                solution[Basis[i] - 1] = SimplexTable[i + 1, 0];
-                            }
-                        }
-                        if (additionalVars.Count != 0)
-                        {
-                            foreach (KeyValuePair<int, int> pair in additionalVars)
-                            {
-                                solution[pair.Key] -= solution[pair.Value];
-                            }
-                        }
-                        double optObjectiveValue = SimplexTable[SimplexTable.GetLength(0) - 2, 0];
-                        if (Prob.Minimize[CriteriaInd] == true)
-                        {
-                            optObjectiveValue *= -1;
-                        }
-                        return optObjectiveValue;
-                    }
-                }
-                else
-                {
-                    int pivotRow = FindPivotRow(pivotColumn);
-                    if (pivotRow == -1)
-                    {
-                        return double.NaN;
-                    }
-                    Basis[pivotRow - 1] = pivotColumn;
-                    FindNewSimplexTable(pivotRow, pivotColumn);
-                    prev = pivotColumn;
                 }
             }
         }

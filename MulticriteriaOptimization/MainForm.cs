@@ -14,6 +14,7 @@ namespace MulticriteriaOptimization
         int countVar;
         MultiCriteriaProblem prob;
         double[] solutionsF;
+        List<double[]> simplexXOpt;
         DataGridView criteriaTable;
         DataGridView coeffTable;
         DataGridView constTable;
@@ -384,29 +385,29 @@ namespace MulticriteriaOptimization
             double[] constants = new double[countConstr];
             MathSign[] constraintSigns = new MathSign[countConstr];
             int[] NotNonNegativeVarInd;
-            List<string> comboboxText = new List<string>();  
-            foreach(Control c in panel1.Controls)
+            List<string> comboboxText = new List<string>();
+            foreach (Control c in panel1.Controls)
             {
-                if(c is ComboBox)
+                if (c is ComboBox)
                     comboboxText.Add(((ComboBox)c).SelectedItem.ToString());
             }
-            for(int i = 0; i < countCrit; i++)
+            for (int i = 0; i < countCrit; i++)
             {
                 minimize[i] = comboboxText[i] == "MIN";
             }
             for (int i = countCrit; i < countCrit + countConstr; i++)
             {
-                switch(comboboxText[i])
+                switch (comboboxText[i])
                 {
                     case "<=": constraintSigns[i - countCrit] = MathSign.LessThan; break;
                     case ">=": constraintSigns[i - countCrit] = MathSign.GreaterThan; break;
                     case "=": constraintSigns[i - countCrit] = MathSign.Equal; break;
                 }
             }
-            List<int> tempNotNonNeg = new List<int>(); 
+            List<int> tempNotNonNeg = new List<int>();
             for (int i = countCrit + countConstr; i < countCrit + countConstr + countVar; i++)
             {
-                if(comboboxText[i] == " ")
+                if (comboboxText[i] == " ")
                 {
                     tempNotNonNeg.Add(i - countCrit - countConstr);
                 }
@@ -416,7 +417,7 @@ namespace MulticriteriaOptimization
             {
                 for (int j = 0; j < criteriaTable.ColumnCount; j++)
                 {
-                    criteriaCoefficients[i,j] = Convert.ToDouble(criteriaTable[j, i].Value);
+                    criteriaCoefficients[i, j] = Convert.ToDouble(criteriaTable[j, i].Value);
                 }
             }
             for (int i = 0; i < coeffTable.RowCount; i++)
@@ -434,38 +435,60 @@ namespace MulticriteriaOptimization
             solutionsF = new double[prob.Minimize.Length];
             SimplexMethod sm;
             labelOptF.Text = "(";
-            for (int i = 0; i < prob.Minimize.Length; i++)
+            simplexXOpt = new List<double[]>();
+            double[] x = new double[prob.CountVariables];
+            for (int i = 0; i < prob.CountCriteria; i++)
             {
                 sm = new SimplexMethod(prob, i);
-                solutionsF[i] = sm.Calculate();
+                Tuple<double, double[]> res;
+                res = sm.Calculate();
+                if (res != null)
+                {
+                    solutionsF[i] = res.Item1;
+                    simplexXOpt.Add(res.Item2);
+                }
+                else
+                {
+                    solutionsF = null;
+                    simplexXOpt = null;
+                    break;
+                }
                 labelOptF.Text += solutionsF[i] + " ";
             }
-            labelOptF.Text += ")";
-            labelOptF.Visible = true;
-            labelProblem.Text = "Решается следующая задача на заданном множестве ограничений:";
-            textBoxProb.Text = "min ";
-            for (int i = 0; i  < prob.CriteriaCoefficients.GetLength(0); i++)
-            {
-                textBoxProb.Text += "(";
-                for (int j = 0; j < prob.CriteriaCoefficients.GetLength(1); j++)
+            if(solutionsF != null)
+            { 
+                labelOptF.Text += ")";
+                labelOptF.Visible = true;
+                labelProblem.Text = "Решается следующая задача на заданном множестве ограничений:";
+                textBoxProb.Text = "min ";
+                for (int i = 0; i < prob.CriteriaCoefficients.GetLength(0); i++)
                 {
-                    textBoxProb.Text += prob.CriteriaCoefficients[i,j] + "X" + (j+1);
-                    if (j != prob.CriteriaCoefficients.GetLength(1) - 1)
+                    textBoxProb.Text += "(";
+                    for (int j = 0; j < prob.CriteriaCoefficients.GetLength(1); j++)
                     {
-                        textBoxProb.Text += (prob.CriteriaCoefficients[i, j + 1] >= 0) ? "+" : "";
+                        textBoxProb.Text += prob.CriteriaCoefficients[i, j] + "X" + (j + 1);
+                        if (j != prob.CriteriaCoefficients.GetLength(1) - 1)
+                        {
+                            textBoxProb.Text += (prob.CriteriaCoefficients[i, j + 1] >= 0) ? "+" : "";
+                        }
+                    }
+                    textBoxProb.Text += (solutionsF[i] > 0) ? "-" : "+";
+                    textBoxProb.Text += Math.Abs(Math.Round(solutionsF[i], 1));
+                    textBoxProb.Text += ")^2";
+                    if (i != prob.CriteriaCoefficients.GetLength(0) - 1)
+                    {
+                        textBoxProb.Text += " + ";
                     }
                 }
-                textBoxProb.Text += (solutionsF[i] > 0) ? "-" : "+";
-                textBoxProb.Text += Math.Abs(Math.Round(solutionsF[i],1));
-                textBoxProb.Text += ")^2";
-                if(i != prob.CriteriaCoefficients.GetLength(0) - 1)
-                {
-                    textBoxProb.Text += " + ";
-                }
+                labelProblem.Visible = true;
+                textBoxProb.Visible = true;
+                buttonComputePenalty.Visible = true;
             }
-            labelProblem.Visible = true;
-            textBoxProb.Visible = true;
-            buttonComputePenalty.Visible = true;
+            else
+            {
+                labelOptF.Text = "Система ограничений задачи несовместна";
+                labelOptF.Visible = true;
+            }
         }
 
         private void buttonComputePenalty_Click(object sender, EventArgs e)
@@ -481,13 +504,8 @@ namespace MulticriteriaOptimization
                     throw new Exception("Неверный формат штрафного коэффициента");
                 if (!Double.TryParse(textBoxStep.Text, out step))
                     throw new Exception("Неверный формат шага");
-                if (Double.IsNaN(solutionsF[0]))
-                    throw new Exception("Решаются только задачи с совместной системой граничений и огранниченными сверху/снизу функциями");
-                PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, eps, epsGrad, a, step);
-                //Stopwatch sw = Stopwatch.StartNew();
-                //double[] x = pm.Calculate();
-                //sw.Stop();
-                ResultsForm res = new ResultsForm(pm);
+                PenaltyMethod pm = new PenaltyMethod(prob, solutionsF, simplexXOpt[0], eps, epsGrad, a, step);
+                ResultsForm res = new ResultsForm(pm, simplexXOpt);
                 res.Show();
             }
             catch(Exception exc)
@@ -564,7 +582,6 @@ namespace MulticriteriaOptimization
                     else
                         throw new Exception("Неверное расширение файла!");
                 }
-                //MessageBox.Show("Задача успешно сохранена!");
             }
             catch (Exception exc)
             {
@@ -630,7 +647,6 @@ namespace MulticriteriaOptimization
                     else
                         throw new Exception("Неверное расширение файла!");
                 }
-                //MessageBox.Show("Задача успешно сохранена!");
             }
             catch (Exception exc)
             {

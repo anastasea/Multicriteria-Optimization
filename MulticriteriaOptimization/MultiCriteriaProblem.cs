@@ -33,5 +33,20 @@ namespace MulticriteriaOptimization
             ConstraintSigns = constraintSigns;
             NotNonNegativeVarInd = notNonNegativeVariables;
         }
+
+        public double[] GetCriteriaValue(double[] x)
+        {
+            double[] res = new double[CountCriteria];
+            for (int i = 0; i < CountCriteria; i++)
+            {
+                double temp = 0;
+                for (int j = 0; j < CountVariables; j++)
+                {
+                    temp += CriteriaCoefficients[i, j] * x[j];
+                }
+                res[i] = temp;
+            }
+            return res;
+        }
     }
 }

@@ -71,7 +71,6 @@
             this.Controls.Add(this.textBox1);
             this.Name = "ResultsForm";
             this.Text = "Решение";
-            this.Load += new System.EventHandler(this.ResultsForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

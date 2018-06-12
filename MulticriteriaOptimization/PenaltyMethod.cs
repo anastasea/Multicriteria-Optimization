@@ -11,15 +11,17 @@ namespace MulticriteriaOptimization
         double stepPenalty;
         double epsilon;
         double epsilonGrad;
+        double[] simplexX;
         List<double[]> gradDescentIterations;
         public List<double[]> PenaltyIterations { get; set; }
 
-        public PenaltyMethod(MultiCriteriaProblem prob, double[] idealF, double epsilon, double epsilonGrad, double alphaK, double step)
+        public PenaltyMethod(MultiCriteriaProblem prob, double[] idealF, double[] simplexX, double epsilon, double epsilonGrad, double alphaK, double step)
         {
             Prob = prob;
             IdealF = idealF;
             this.epsilon = epsilon;
             this.epsilonGrad = epsilonGrad;
+            this.simplexX = simplexX;
             AlphaK = alphaK;
             stepPenalty = step;
             PenaltyIterations = new List<double[]>();
@@ -29,10 +31,7 @@ namespace MulticriteriaOptimization
         public double[] Calculate()
         {
             double[] xk = new double[Prob.CountVariables];
-            for (int i = 0; i < xk.Length; i++)
-            {
-                xk[i] = 0;
-            }
+            Array.Copy(simplexX, xk, xk.Length);
             double[] prev = new double[xk.Length];
             double norm; 
             do

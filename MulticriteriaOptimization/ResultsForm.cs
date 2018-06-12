@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
@@ -10,12 +11,14 @@ namespace MulticriteriaOptimization
     {
         PenaltyMethod penalty;
         double[] xOpt;
+        List<double[]> simplexXOpt;
         Stopwatch sw;
 
-        public ResultsForm(PenaltyMethod pm)
+        public ResultsForm(PenaltyMethod pm, List<double[]> simplexXOpt)
         {
             InitializeComponent();
             this.penalty = pm;
+            this.simplexXOpt = simplexXOpt;
             sw = Stopwatch.StartNew();
             xOpt = pm.Calculate();
             sw.Stop();
@@ -46,22 +49,34 @@ namespace MulticriteriaOptimization
                 }
             }
             textBox1.Text += ") \r\n";
-            double[] fOpt = new double[penalty.Prob.CriteriaCoefficients.GetLength(0)];
             textBox1.Text += "f = (";
+            double[] funcValues = penalty.Prob.GetCriteriaValue(xOpt);
             for (int i = 0; i < penalty.Prob.CountCriteria; i++)
             {
-                double temp = 0;
-                for (int j = 0; j < penalty.Prob.CountVariables; j++)
-                {
-                    temp += penalty.Prob.CriteriaCoefficients[i, j] * xOpt[j];
-                }
-                textBox1.Text += temp;
+                textBox1.Text += funcValues[i];
                 if (i != penalty.Prob.CountCriteria-1)
                 {
                     textBox1.Text += "; ";
                 }
             }
             textBox1.Text += ") \r\n";
+
+            for(int i = 0; i < penalty.Prob.CountCriteria; i++)
+            {
+                textBox1.Text += "f"+ i +" = (";
+                double[] fv = penalty.Prob.GetCriteriaValue(simplexXOpt[i]);
+                for (int j = 0; j < penalty.Prob.CountCriteria; j++)
+                {
+                    textBox1.Text += fv[j];
+                    if (j != penalty.Prob.CountCriteria - 1)
+                    {
+                        textBox1.Text += "; ";
+                    }
+                }
+                textBox1.Text += ") \r\n";
+                textBox1.Text += "Расстояние от f" + i + " до точки, соотествующей решению: " + penalty.VectorNorm(penalty.SubstractVectors(funcValues, fv)) + "\r\n";
+            }
+
             double totalSum = 0;
             for (int i = 0; i < penalty.Prob.CountConstraint; i++)
             {
@@ -125,17 +140,11 @@ namespace MulticriteriaOptimization
                     else
                         throw new Exception("Неверное расширение файла!");
                 }
-                //MessageBox.Show("Решение успешно сохранено!");
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
             }
-        }
-
-        private void ResultsForm_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }

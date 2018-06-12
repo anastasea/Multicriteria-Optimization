@@ -60,10 +60,10 @@ namespace MulticriteriaOptimization
                 }
             }
             textBox1.Text += ") \r\n";
-
-            for(int i = 0; i < penalty.Prob.CountCriteria; i++)
+            textBox1.Text += "Решения, полученные по каждому частному критерию:\r\n";
+            for (int i = 0; i < penalty.Prob.CountCriteria; i++)
             {
-                textBox1.Text += "f"+ i +" = (";
+                textBox1.Text += "f"+ (i+1) +" = (";
                 double[] fv = penalty.Prob.GetCriteriaValue(simplexXOpt[i]);
                 for (int j = 0; j < penalty.Prob.CountCriteria; j++)
                 {
@@ -74,7 +74,7 @@ namespace MulticriteriaOptimization
                     }
                 }
                 textBox1.Text += ") \r\n";
-                textBox1.Text += "Расстояние от f" + i + " до точки, соотествующей решению: " + penalty.VectorNorm(penalty.SubstractVectors(funcValues, fv)) + "\r\n";
+                textBox1.Text += "Расстояние от f" + (i +1) + " до точки, соответствующей решению f: " + penalty.VectorNorm(penalty.SubstractVectors(funcValues, fv)) + "\r\n";
             }
 
             double totalSum = 0;
